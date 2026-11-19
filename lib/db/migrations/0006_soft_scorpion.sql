@@ -1,0 +1,4 @@
+ALTER TABLE "payment_intents" ADD CONSTRAINT "payment_intents_amount_decimal_check" CHECK ("payment_intents"."amount_decimal" ~ '^(0|[1-9][0-9]*)([.][0-9]{1,8})?$' AND "payment_intents"."amount_decimal"::numeric > 0);--> statement-breakpoint
+ALTER TABLE "payment_intents" ADD CONSTRAINT "payment_intents_currency_check" CHECK ("payment_intents"."currency" ~ '^[A-Z]{3,10}$');--> statement-breakpoint
+ALTER TABLE "payment_intents" ADD CONSTRAINT "payment_intents_request_key_check" CHECK (char_length("payment_intents"."request_key") BETWEEN 1 AND 100);--> statement-breakpoint
+ALTER TABLE "payment_intents" ADD CONSTRAINT "payment_intents_order_key_check" CHECK (char_length("payment_intents"."external_order_id") BETWEEN 1 AND 180 AND char_length("payment_intents"."idempotency_key") BETWEEN 1 AND 180);

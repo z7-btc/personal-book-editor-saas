@@ -1,0 +1,91 @@
+{
+  "Legal": {
+    "draftTitle": "{title} · Draft template",
+    "unconfigured": "Not configured",
+    "contents": "On this page",
+    "turnstileSource": "Cloudflare Turnstile privacy notice",
+    "navigation": {
+      "home": "Home",
+      "primary": "Site navigation",
+      "documents": "Legal documents",
+      "skip": "Skip to content"
+    },
+    "draft": {
+      "heading": "Draft template, not approved for publication",
+      "body": "This page describes the current template and its data flows. The actual operator, contact channel, deployment facts and applicable policies still need to be supplied and reviewed. This is not an effective operator notice. Search indexing is disabled, and local tests do not establish acceptance of production payments, email or payouts.",
+      "missing": "Still required before publication:"
+    },
+    "fields": {
+      "operatorName": "Operator name",
+      "supportContact": "Support and privacy contact",
+      "effectiveDate": "Effective date",
+      "privacyDetails": "Actual data handling and retention policy",
+      "termsDetails": "Actual commercial and use policies",
+      "approvedForPublication": "Operator publication review"
+    },
+    "privacy": {
+      "title": "Privacy notice",
+      "description": "How the personal account, payment, referral and email features use data, and what remains unconfirmed in this template.",
+      "detailsTitle": "Actual policies the operator must supply",
+      "detailsMissing": "The actual data recipients and their identities, hosting and storage regions, retention and deletion rules, and privacy request process are not configured. The operator must supply and review every translation against the actual deployment. This template does not determine the applicable jurisdiction or claim regulatory compliance.",
+      "sections": {
+        "account": {
+          "title": "Accounts and authentication",
+          "body": "Account records include email, name, language preference, email confirmation status and marketing choice. Password authentication stores password hashes; the authentication system stores sessions and temporary confirmation or reset credentials. Sessions may record IP addresses and browser information, and rate limit records help prevent abuse.\nSign-in does not require prior email confirmation and sends no email code. Sign-up does send one: a one-time code is mailed to the address, and the new account cannot be used until that code is entered. Email confirmation, password reset and email change depend on optional transactional email configuration. These messages contain temporary links and use a separate channel from marketing email."
+        },
+        "billing": {
+          "title": "Payments, subscriptions and referrals",
+          "body": "When payments are enabled, this site sends the personal billing identifier, payer identifier, product and payment method to Payment Center. It retains order, amount and currency records, payment evidence mirrors, entitlement periods and recovery task status. Payment provider credentials, original payment proof, approval and external settlement are handled by Payment Center. This site updates entitlements from verified settlement facts.\nWhen referrals are enabled, this site records invitation codes and the first valid attribution, then synchronizes the user and attribution with Payment Center. That center is authoritative for referral rules, balances, ledgers and withdrawal status. A withdrawal involves a Binance UID or wallet address. This site currently encrypts the payout account at rest, shows masked values in ordinary views, and sends the information needed for settlement to the center."
+        },
+        "email": {
+          "title": "Contacts, marketing choice and unsubscribe",
+          "body": "When Email Center integration is enabled, this site synchronizes user identifier, email, name, language and its source, event time and marketing choice. An opt in remains pending locally until email ownership is confirmed; marketing consent sent to the center is false before confirmation. Declining marketing does not prevent a basic account from being created.\nEmail Center manages contacts, campaigns, unsubscribe, bounces, complaints and delivery suppression. Profile changes, old task retries and Widget requests cannot override its unsubscribe or suppression state. The optional Widget uses a public application identifier and allowed site domains to process a subscription request the user submits. Transactional messages use a separate Resend adapter and are separate from Email Center marketing consent."
+        },
+        "browser": {
+          "title": "Browser storage and security challenges",
+          "body": "Sign in uses session cookies, language uses a preference cookie, and theme uses browser local storage. Payment and withdrawal pages keep request identifiers in session storage to recover the same request. When referrals are enabled, a signed invitation cookie supports registration attribution. These records serve their respective features.\nWhen Cloudflare Turnstile is enabled, the browser runs its security challenge. Cloudflare may process IP addresses, browser information and security signals used to distinguish people from bots. This site validates the challenge on the server. Turnstile does not establish email ownership or mark an email as confirmed."
+        },
+        "controls": {
+          "title": "Account controls currently available",
+          "body": "Account settings support changes to name, language and marketing choice. An email change requires approval through the old address and confirmation through the new one. Until confirmation, the original account email and contact binding remain in place. Actions that depend on email confirmation are unavailable when transactional email is not configured.\nThe current template has no self service account deletion or full personal data export screen. Privacy, deletion or correction requests should use the operator's actual contact channel; this page identifies when that channel has not been configured. This site also cannot promise deletion of records held by the two independent centers or removal of delivery suppression on their behalf."
+        },
+        "retention": {
+          "title": "Retention, security and deployment facts",
+          "body": "Business records include accounts, payment and entitlement facts, invitation attribution, and synchronization and recovery task status. Retention settings and automatic cleanup are not yet fully implemented. This page does not promise an actual deletion deadline; the handling of financial records and removable personal information still needs operator review.\nEncryption of withdrawal accounts does not mean all data is encrypted or guarantee that security incidents cannot occur. Actual service provider identities, storage regions, transfers between regions, backups and request handling rules must be verified for the deployment. Local validation does not establish that production has completed these steps."
+        }
+      }
+    },
+    "terms": {
+      "title": "Terms of use",
+      "description": "The current personal account template's service boundaries, payment and subscription behavior, and commercial policies requiring operator review.",
+      "detailsTitle": "Commercial policies the operator must confirm",
+      "detailsMissing": "Refund and cancellation policies, eligibility, support arrangements and terms such as applicable law are not configured. This template does not select a jurisdiction, dispute resolution procedure or limitation of liability for the operator, and does not promise a refund outcome. Verify the actual service and policies and review every translation first.",
+      "sections": {
+        "account": {
+          "title": "Personal accounts and identity confirmation",
+          "body": "This site serves individual users with their own account and subscription. Protect your credentials and manage only your own billing and withdrawal requests. Invitations support referral attribution; they do not provide team membership, member management, multiple workspaces or payment on someone else's behalf.\nBasic registration and sign in do not require prior email confirmation. Turnstile provides a security challenge and does not verify email. Sensitive actions such as withdrawals still require a recent sign in and confirmed email ownership. Those actions are unavailable when the required transactional email is not configured."
+        },
+        "payments": {
+          "title": "Quotes, payments and entitlement activation",
+          "body": "Enabled payment methods and prices come from Payment Center's actual catalog and order snapshots. That center handles Stripe, manual, blockchain and commission balance payments. Currencies are shown separately; this site does not provide implicit currency conversion. An unconfigured feature or one that has not passed integration checks is not an available payment service.\nSubmitting payment proof, a browser redirect, blockchain detection or an intermediate order status does not establish entitlement activation. This site updates the corresponding entitlement after validating settlement. A pending order may need further confirmation. Payment Center is authoritative for manual approval, blockchain confirmation, refunds and disputes."
+        },
+        "subscription": {
+          "title": "Auto renewal and current plan limits",
+          "body": "Supported Stripe auto renewal controls are sent to Payment Center after this site authorizes the user's own subscription. Turning off future auto renewal does not automatically refund a previous payment. The confirmed center status and this site's entitlement records determine the actual renewal setting and paid period.\nThe current template prevents another monthly or yearly purchase while a paid entitlement remains unexpired. It does not provide a complete immediate plan change or early prepaid stacking flow. The actual entitlement effect of refunds, partial refunds and disputes must be checked against the accepted contract between services. This page gives no unconditional refund or service duration guarantee."
+        },
+        "referrals": {
+          "title": "Referrals and withdrawals",
+          "body": "Payment Center is authoritative for referral rules, tiers, balances, ledgers, refund reversals and withdrawal approval. This site shows personal query results, attribution and withdrawal request status. It does not guarantee commission amounts, earnings or payout timing.\nCurrent withdrawal requests support USDT only and require confirmed email ownership and a recent sign in. Submitting a request does not mean a payout has occurred. The center handles approval, rejection, settlement and final status. A network timeout can leave a request awaiting confirmation; continue querying or recovering its original identifier to avoid duplicate requests."
+        },
+        "email": {
+          "title": "Email choices and external services",
+          "body": "Marketing subscription is optional and separate from an account and necessary transactional messages. A marketing choice does not take effect before email confirmation. Email Center's unsubscribe, bounce, complaint and suppression states take precedence, and profile updates cannot automatically restore consent.\nPayment Center and Email Center are independent services, handling payments and referrals, and contacts and campaigns respectively. Current transactional messages use a separate Resend adapter. Each feature depends on its own configuration and availability; connection to one center does not establish availability of the other."
+        },
+        "availability": {
+          "title": "Availability, support and publication status",
+          "body": "Development and local tests do not establish acceptance of real payments, production email delivery, payouts or deployment security. The operator must verify enabled features, limitations, support and incident handling for the actual deployment before making corresponding commitments to users.\nThis draft does not set a specific refund guarantee, availability commitment, applicable law or dispute resolution procedure. The page remains a draft until actual policies, an effective date and operator review are complete. Its technical descriptions cannot replace those operator decisions."
+        }
+      }
+    }
+  }
+}

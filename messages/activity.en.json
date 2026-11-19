@@ -1,0 +1,28 @@
+{
+  "Activity": {
+    "title": "Activity", "eyebrow": "Your account timeline",
+    "description": "Review profile, security, and billing events for your own account. Records describe facts and begin when this feature is enabled.",
+    "log": "Activity Log", "recent": "Recent Activity",
+    "timezone": "Times are shown in UTC.", "feedLabel": "Personal activity timeline",
+    "emptyTitle": "No activity yet", "emptyDescription": "Account changes and billing events recorded after this feature is enabled will appear here.",
+    "unavailable": "Activity is temporarily unavailable. Please reopen this page later.", "sessionExpired": "Your session has expired.", "signIn": "Sign in again",
+    "loadOlder": "View older records", "loading": "Loading…", "loaded": "Showing {count} records", "end": "All currently available records are shown",
+    "categories": { "account": "Account", "security": "Security", "billing": "Billing" },
+    "events": {
+      "account_created": { "title": "Account created", "description": "Your account registration was saved." },
+      "account_profile_updated": { "title": "Profile updated", "description": "Your name, email language, or email preference changed." },
+      "account_email_changed": { "title": "Account email changed", "description": "The account saved a new email address. Activity records do not display the address." },
+      "security_email_verified": { "title": "Email confirmed", "description": "Email ownership confirmation took effect for your account." },
+      "security_email_unverified": { "title": "Email confirmation updated", "description": "The current account email has not completed ownership confirmation." },
+      "security_password_changed": { "title": "Password updated", "description": "Your account password credential changed." },
+      "security_session_created": { "title": "Session established", "description": "A new account session was created. Registration or email confirmation can also create a session." },
+      "billing_checkout_created": { "title": "Payment request created", "description": "Your account created a payment request. This record does not confirm payment." },
+      "billing_payment_confirmed": { "title": "Payment confirmed", "description": "Billing saved valid payment evidence linked to your account." },
+      "billing_payment_reversed": { "title": "Payment evidence reversed", "description": "Billing recorded a reversal of this payment evidence." },
+      "billing_payment_restored": { "title": "Payment evidence restored", "description": "Billing restored the valid status of this payment evidence." },
+      "billing_access_granted": { "title": "Service access granted", "description": "The account saved a service grant linked to valid payment evidence." },
+      "billing_access_revoked": { "title": "Service grant revoked", "description": "The service grant associated with this billing record was revoked." },
+      "billing_access_restored": { "title": "Service grant restored", "description": "The service grant associated with this billing record became valid again." }
+    }
+  }
+}

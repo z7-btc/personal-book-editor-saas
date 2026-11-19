@@ -1,0 +1,21 @@
+{
+  "BillingHistory": {
+    "title": "Subscription & billing", "subtitle": "Your active subscription, orders, and verified payments for each period.",
+    "current": "Current subscription", "active": "Active", "none": "No active subscription", "paidUntil": "Active until {date}",
+    "prepaid": "This subscription is prepaid. Purchase again when it expires.", "noAccess": "Orders awaiting review or confirmation do not grant access.",
+    "payments": "Payment history", "paymentsNote": "Each payment period shows the actual settled amount and service dates.",
+    "orders": "Order history", "ordersNote": "Amounts are the original quotes. Payment history shows actual settlements.",
+    "emptyPayments": "No verified payments yet.", "emptyOrders": "No orders yet.",
+    "refresh": "Refresh", "loading": "Updating…", "loadMore": "Load more", "failed": "Billing is temporarily unavailable. Please try again.",
+    "stale": "The update failed. Your previously loaded records remain below.", "unavailable": "Payments are not enabled yet. Historical records remain available.",
+    "recordedAt": "Recorded {date}", "period": "Service period: {start} to {end}", "asOf": "Local records read at {date}",
+    "factsNote": "Payment and access states reflect verified local records. New events may appear after synchronization.", "timesUtc": "Dates are shown in UTC.",
+    "method": "Payment method", "status": "Status", "amount": "Amount", "plan": "Plan", "retry": "Retry",
+    "renewalTitle": "Stripe automatic renewal", "renewalUnavailable": "Automatic renewal settings cannot currently be verified for this subscription.",
+    "methods": { "stripe": "Card · Stripe", "manual": "Manual payment", "blockchain": "Blockchain", "commission_balance": "Commission balance", "binance_pay": "Binance Pay" },
+    "intervals": { "month": "Monthly", "year": "Yearly" },
+    "orderStates": { "pending": "Pending submission", "submitting": "Submitting", "action_required": "Awaiting payment or action", "unknown": "Awaiting confirmation", "failed": "Failed", "cancelled": "Cancelled", "manual_review": "Awaiting review", "awaiting_confirmation": "Awaiting payment evidence", "settled": "Payment recorded" },
+    "paymentStates": { "settled": "Settled", "refunded": "Refunded", "disputed": "Access revoked after dispute", "reversed": "Reversed" },
+    "accessStates": { "active": "Period active", "upcoming": "Not started", "expired": "Period ended", "revoked": "Period access revoked", "review": "Access awaiting verification" }
+  }
+}
