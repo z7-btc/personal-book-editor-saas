@@ -193,7 +193,7 @@ function prepaidPeriod(intent: IntentRow, start: number, options: { eventId?: st
     servicePeriodStart: start,
     servicePeriodEnd: start + 30 * DAY,
     method: intent.method as 'manual' | 'blockchain' | 'commission_balance',
-    interval: intent.price_interval as 'month' | 'year',
+    interval: intent.price_interval as 'one_time' | 'month' | 'year',
   };
 }
 
@@ -931,5 +931,49 @@ describe('prepaid channels and provider switching (AC14)', () => {
       { ...settledPeriod(intent, periodOneStart, { invoice: 'INV-W3' }), settledAt: nowSeconds + 3_600 },
       order, now,
     )).rejects.toThrow('Settlement time is in the future');
+  });
+});
+
+describe('buyout purchases (one_time)', () => {
+  // The Payment Center stamps year 9999 as the end of a buyout period; that is
+  // how a permanent grant travels through a contract made of timestamps.
+  const PERMANENT_END = 253402300799;
+
+  it('grants a settled buyout as a period that never lapses', async () => {
+    const workspace = await seedWorkspace();
+    const intentId = await seedIntent(workspace, 'buyout', { method: 'manual', interval: 'one_time' });
+    const intent = await loadIntent(intentId);
+    const order = centerOrder(intent);
+    const eventId = randomUUID();
+    await seedInbox(eventId, order);
+
+    const result = await service.fulfillSubscription({
+      ...prepaidPeriod(intent, periodOneStart, { eventId }),
+      interval: 'one_time',
+      servicePeriodEnd: PERMANENT_END,
+    }, order, new Date(nowSeconds * 1000));
+
+    expect(result.duplicate).toBe(false);
+    expect(result.status).toBe('settled');
+    const [grant] = await client<{ period_end: string }[]>`
+      SELECT period_end::text FROM subscription_grants
+      WHERE organization_id = ${workspace.organizationId}`;
+    expect(Math.floor(new Date(grant!.period_end).getTime() / 1000)).toBe(PERMANENT_END);
+    expect(result.subscription?.activeUntil?.getTime()).toBe(PERMANENT_END * 1000);
+  });
+
+  it('refuses a one-time order whose period is not permanent', async () => {
+    // A centre bug selling a month as a buyout must not become a grant.
+    const workspace = await seedWorkspace();
+    const intentId = await seedIntent(workspace, 'buyout-short', {
+      method: 'manual', interval: 'one_time',
+    });
+    const intent = await loadIntent(intentId);
+    await expect(service.fulfillSubscription({
+      ...prepaidPeriod(intent, periodOneStart),
+      interval: 'one_time',
+    }, centerOrder(intent), new Date(nowSeconds * 1000)))
+      .rejects.toThrow('Service period is invalid');
+    expect((await rowCounts(workspace.organizationId)).grants).toBe(0);
   });
 });

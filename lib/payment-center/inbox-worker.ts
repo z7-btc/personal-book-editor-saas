@@ -44,7 +44,8 @@ const prepaidSchema = z.object({
   // Any non-subscription channel the catalogue enabled. Not an enum: a new
   // channel reusing the prepaid evidence shape must not need a code change.
   payment_method: z.string().trim().min(1).max(40),
-  recurrence_interval: z.enum(['month', 'year']),
+  // `one_time` is the buyout: the centre stamps a permanent period end for it.
+  recurrence_interval: z.enum(['one_time', 'month', 'year']),
   provider_payment_id: z.string().min(1),
   amount_paid_decimal: z.string().regex(/^(?:0|[1-9]\d*)(?:\.\d{1,8})?$/),
   currency: z.string().regex(/^[A-Z]{3,10}$/),

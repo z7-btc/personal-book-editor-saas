@@ -29,7 +29,10 @@ type WidgetApi = {
   mount(target: Element, options: Record<string, unknown>): unknown;
 };
 
-type PublicConfig = { baseUrl: string; siteCode: string; methods: string[] };
+type PublicConfig = {
+  baseUrl: string; siteCode: string; methods: string[];
+  methodActions?: Record<string, string>;
+};
 
 const SCRIPT_ATTRIBUTE = 'data-payment-center-widget';
 const TOKEN_URL = '/api/payment-center/embed-token';
@@ -131,7 +134,12 @@ export function PaymentCenterCheckout({ productCode, billingInterval, catalogCur
           baseUrl: config.baseUrl,
           siteCode: config.siteCode,
           tokenUrl: TOKEN_URL,
-          allowedMethods: config.methods,
+          // The server refuses a one-time order on a redirect channel, so the
+          // buyout checkout does not offer one. Unknown actions stay offered:
+          // the centre is the list of channels, and it still fails closed.
+          allowedMethods: billingInterval === 'one_time'
+            ? config.methods.filter((method) => config.methodActions?.[method] !== 'redirect')
+            : config.methods,
           productCode,
           // Locking the interval is what turns the widget from a plan browser
           // into a plain payment-method list: the remote script hides its own
