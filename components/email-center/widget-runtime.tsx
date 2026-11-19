@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import type { Locale } from '@/i18n/routing';
+import { BRAND_NAME } from '@/lib/brand';
 
 type LoadedWidget = { script: HTMLScriptElement; src: string; widgetKey: string; locale: Locale };
 
@@ -37,7 +38,7 @@ export function WidgetRuntime({ src, widgetKey, locale }: {
       script.src = src;
       script.async = true;
       script.dataset.appKey = widgetKey;
-      script.dataset.productName = 'SaaS Framework';
+      script.dataset.productName = BRAND_NAME;
       // Without this the Widget reads `navigator.language` and a visitor whose
       // browser is set to Chinese keeps a Chinese form on the English site.
       // Passing the locale pins the Widget to the language of the page it is

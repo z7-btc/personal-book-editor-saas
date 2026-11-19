@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { routing, type Locale } from '@/i18n/routing';
+import { BRAND_NAME } from '@/lib/brand';
 
 export function siteOrigin(): string {
   return new URL(process.env.APP_BASE_URL || 'http://localhost:3000').origin;
@@ -46,7 +47,7 @@ export function publicPageMetadata(
       type: 'website',
       locale: OG_LOCALES[locale],
       url: localizedPath(locale),
-      siteName: 'SaaS Framework',
+      siteName: BRAND_NAME,
       title,
       description,
     },
