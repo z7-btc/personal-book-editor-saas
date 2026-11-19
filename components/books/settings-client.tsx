@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl';
 import {
   ApiError,
   booksApi,
-  formatDate,
   type ProviderPreset,
   type ProviderView,
   type SettingsPayload,
@@ -507,7 +506,12 @@ export default function SettingsClient() {
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('settings.speed.desc')}</p>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           {data.speedPresets.map((preset) => {
-            const checked = preset.id === currentSpeed;
+            // 以草稿里的 targetCharsPerChunk 为准：点了就得马上看到选中，
+            // 不能等服务端返回 currentSpeedPreset（那要等保存完）。
+            const draftTarget = Number(read(draft, ['processing', 'targetCharsPerChunk']) ?? NaN);
+            const checked = Number.isFinite(draftTarget) && draftTarget > 0
+              ? draftTarget === preset.target
+              : preset.id === currentSpeed;
             const labelKey =
               preset.id === 'careful' ? 'careful' : preset.id === 'frugal' ? 'frugal' : 'balanced';
             const hintKey = `${labelKey}Hint` as 'carefulHint' | 'balancedHint' | 'frugalHint';
@@ -707,7 +711,6 @@ export default function SettingsClient() {
         <button type="button" onClick={save} disabled={saving} className={primary}>
           {saving ? t('common.saving') : t('common.save')}
         </button>
-        <span className="text-xs text-gray-500 dark:text-gray-400">{formatDate(new Date().toISOString(), 'en')}</span>
       </div>
     </div>
   );

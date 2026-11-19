@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
-import { booksApi, ApiError, formatBytes, formatDate, type BookSummary } from './api';
+import { booksApi, ApiError, formatDate, type BookCard } from './api';
 import { useJobs } from './jobs-provider';
 
 export default function LibraryClient() {
@@ -11,7 +11,7 @@ export default function LibraryClient() {
   const locale = useLocale();
   const router = useRouter();
   const { version } = useJobs();
-  const [books, setBooks] = useState<BookSummary[] | null>(null);
+  const [books, setBooks] = useState<BookCard[] | null>(null);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState<{ name: string; percent: number } | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -53,7 +53,7 @@ export default function LibraryClient() {
     }
   }
 
-  async function remove(book: BookSummary) {
+  async function remove(book: BookCard) {
     if (busyBook) return;
     if (!window.confirm(t('library.deleteConfirm', { title: book.title }))) return;
     setBusyBook(book.bookId);
@@ -152,8 +152,8 @@ export default function LibraryClient() {
         <ul className="grid gap-4 md:grid-cols-2">
           {books.map((book) => {
             const p = book.progress;
-            const total = p.rewritable || Math.max(0, p.total - p.skipped);
-            const finished = p.completed + p.failed;
+            const total = p ? p.rewritable || Math.max(0, p.total - p.skipped) : 0;
+            const finished = p ? p.completed + p.failed : 0;
             const percent = total ? Math.min(100, Math.round((finished / total) * 100)) : 0;
             return (
               <li
@@ -169,8 +169,7 @@ export default function LibraryClient() {
                       {book.title}
                     </Link>
                     <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">
-                      {(book.authors || []).join(' / ') || '—'} · {t('library.chapters', { count: book.chapterCount })} ·{' '}
-                      {formatBytes(book.sourceSize)}
+                      {(book.authors || []).join(' / ') || '—'} · {t('library.chapters', { count: book.chapterCount })}
                     </p>
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       {t('library.updated', { date: formatDate(book.updatedAt || book.createdAt, locale) })}
@@ -194,14 +193,16 @@ export default function LibraryClient() {
                   <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                     <div className="h-full bg-gray-900 transition-all dark:bg-gray-100" style={{ width: `${percent}%` }} />
                   </div>
-                  <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
-                    {book.progress.completed > 0 && <span>{t('book.stats.done')}: {book.progress.completed}</span>}
-                    {book.progress.failed > 0 && (
-                      <span className="text-amber-600 dark:text-amber-400">{t('book.stats.failed')}: {book.progress.failed}</span>
-                    )}
-                    {book.progress.pending > 0 && <span>{t('library.pending', { count: book.progress.pending })}</span>}
-                    {book.progress.skipped > 0 && <span>{t('book.stats.skipped')}: {book.progress.skipped}</span>}
-                  </div>
+                  {p && (
+                    <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                      {p.completed > 0 && <span>{t('book.stats.done')}: {p.completed}</span>}
+                      {p.failed > 0 && (
+                        <span className="text-amber-600 dark:text-amber-400">{t('book.stats.failed')}: {p.failed}</span>
+                      )}
+                      {p.pending > 0 && <span>{t('library.pending', { count: p.pending })}</span>}
+                      {p.skipped > 0 && <span>{t('book.stats.skipped')}: {p.skipped}</span>}
+                    </div>
+                  )}
                   {book.pendingWork && (
                     <p className="mt-1.5 text-xs text-amber-700 dark:text-amber-400">
                       {t('book.resume.reason', { reason: book.pendingWork.reason || t('common.unknown') })}
@@ -226,16 +227,6 @@ export default function LibraryClient() {
                         {t('library.badges.drop', { count: book.processed.counts.drop })}
                       </span>
                     )}
-                    {book.processed.renamed > 0 && (
-                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                        {t('library.badges.renamed', { count: book.processed.renamed })}
-                      </span>
-                    )}
-                    {book.processed.reordered && (
-                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                        {t('library.badges.reordered')}
-                      </span>
-                    )}
                   </div>
                 )}
 
@@ -246,17 +237,17 @@ export default function LibraryClient() {
                   >
                     {t('library.open')}
                   </Link>
-                  {book.exports.length > 0 && (
+                  {book.latestExport && (
                     <a
-                      href={booksApi.exportDownloadUrl(book.bookId, book.exports[0].name)}
+                      href={booksApi.exportDownloadUrl(book.bookId, book.latestExport.name)}
                       className="rounded-md border border-gray-200 px-3 py-1.5 text-xs hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
                     >
                       {t('library.export')}
                     </a>
                   )}
                   <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">
-                    {book.exports.length
-                      ? `${t('library.exportsTitle')}: ${book.exports.length}`
+                    {book.exportCount
+                      ? `${t('library.exportsTitle')}: ${book.exportCount}`
                       : t('library.noExports')}
                   </span>
                 </div>
