@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import sitemap from '@/app/sitemap';
 import robots from '@/app/robots';
 import { publicPageMetadata } from '@/lib/seo';
+import { BRAND_NAME } from '@/lib/brand';
 import { routing, type Locale } from '@/i18n/routing';
 import { getLegalPublicationStatus, legalConfig } from '@/lib/legal/config';
 import zh from '@/messages/zh-CN.json';
@@ -94,7 +95,7 @@ describe('public page metadata', () => {
       expect(metadata.openGraph?.url).toBe(metadata.alternates?.canonical);
       expect(metadata.openGraph).toMatchObject({
         type: 'website',
-        siteName: 'SaaS Framework',
+        siteName: BRAND_NAME,
         locale: OG_LOCALES[locale],
         title: 'Title',
         description: 'Description',

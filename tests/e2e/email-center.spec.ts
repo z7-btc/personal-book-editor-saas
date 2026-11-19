@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { expect, test } from '@playwright/test';
+import { BRAND_NAME } from '../../lib/brand';
 
 /**
  * Acceptance criteria 25 to 30 at the browser boundary: the marketing widget the
@@ -21,7 +22,7 @@ test('the widget loader mounts the remote script with the site key on the public
   await expect(script).toHaveCount(1);
   const expected = new URL('/email-center-widget.js?v=3', process.env.EMAIL_CENTER_URL!).href;
   expect(await script.getAttribute('src')).toBe(expected);
-  expect(await script.getAttribute('data-product-name')).toBe('SaaS Framework');
+  expect(await script.getAttribute('data-product-name')).toBe(BRAND_NAME);
   // The runtime opens it on arrival; the assertion said `false` long after the
   // loader was changed to auto-open, and the skip below hid the drift.
   expect(await script.getAttribute('data-open')).toBe('true');
