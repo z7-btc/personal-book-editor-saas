@@ -1,0 +1,1 @@
+ALTER TABLE "payment_inbox" ADD COLUMN "lease_owner" text;

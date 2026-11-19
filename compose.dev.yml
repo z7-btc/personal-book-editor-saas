@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: saas_framework
+      POSTGRES_USER: saas_framework
+      POSTGRES_PASSWORD: saas_framework
+    ports:
+      - '127.0.0.1:54329:5432'
+    volumes:
+      - saas_framework_pg:/var/lib/postgresql/data
+
+volumes:
+  saas_framework_pg:

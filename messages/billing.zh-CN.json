@@ -1,0 +1,21 @@
+{
+  "BillingHistory": {
+    "title": "订阅与账单", "subtitle": "查看你的有效订阅、下单记录与每期已验证付款。",
+    "current": "当前订阅", "active": "已开通", "none": "暂无有效订阅", "paidUntil": "有效至 {date}",
+    "prepaid": "这份订阅为预付费；到期后需再次购买。", "noAccess": "待审核和结果未知的订单不会开通订阅。",
+    "payments": "付款记录", "paymentsNote": "每期付款单独记录，显示实际结算金额和服务期限。",
+    "orders": "下单记录", "ordersNote": "显示创建订单时的报价；实际付款以付款记录为准。",
+    "emptyPayments": "还没有已验证的付款记录。", "emptyOrders": "还没有下单记录。",
+    "refresh": "刷新", "loading": "正在更新…", "loadMore": "查看更多", "failed": "暂时无法读取账单，请重试。",
+    "stale": "更新失败，下方仍显示上次读取的记录。", "unavailable": "收款服务尚未启用，历史记录仍可查看。",
+    "recordedAt": "记录于 {date}", "period": "服务期限：{start} 至 {end}", "asOf": "本地记录读取于 {date}",
+    "factsNote": "付款和订阅状态来自已验证的本地记录；尚未同步的新事件可能稍后出现。", "timesUtc": "日期按 UTC 显示。",
+    "method": "支付方式", "status": "状态", "amount": "金额", "plan": "套餐", "retry": "重试",
+    "renewalTitle": "Stripe 自动续费", "renewalUnavailable": "暂时无法核对这份订阅的自动续费设置。",
+    "methods": { "stripe": "银行卡 · Stripe", "manual": "人工收款", "blockchain": "链上支付", "commission_balance": "佣金余额", "binance_pay": "币安支付" },
+    "intervals": { "month": "月付", "year": "年付" },
+    "orderStates": { "pending": "待提交", "submitting": "正在下单", "action_required": "待付款或处理", "unknown": "结果待确认", "failed": "下单失败", "cancelled": "已取消", "manual_review": "等待复核", "awaiting_confirmation": "付款证据待确认", "settled": "付款已记录" },
+    "paymentStates": { "settled": "已结算", "refunded": "已退款", "disputed": "争议已撤销权益", "reversed": "已冲正" },
+    "accessStates": { "active": "本期有效", "upcoming": "尚未开始", "expired": "本期已结束", "revoked": "本期权益已撤销", "review": "权益待核对" }
+  }
+}

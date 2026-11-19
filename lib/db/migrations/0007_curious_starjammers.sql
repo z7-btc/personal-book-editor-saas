@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "payment_intents_one_open_checkout" ON "payment_intents" USING btree ("organization_id") WHERE "payment_intents"."status" IN ('submitting', 'action_required', 'unknown');

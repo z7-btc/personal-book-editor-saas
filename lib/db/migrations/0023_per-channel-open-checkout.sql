@@ -1,0 +1,2 @@
+DROP INDEX "payment_intents_one_open_checkout";--> statement-breakpoint
+CREATE UNIQUE INDEX "payment_intents_one_open_checkout_per_channel" ON "payment_intents" USING btree ("organization_id","method") WHERE "payment_intents"."status" IN ('submitting', 'action_required', 'unknown');

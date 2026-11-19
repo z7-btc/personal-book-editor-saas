@@ -1,0 +1,130 @@
+# Local verification only.
+#
+# The plan is explicit about what CI is allowed to be: a workflow that calls the
+# same scripts a developer runs, and nothing else. It does not deploy, it does
+# not touch a production database, and it does not run a job that talks to a
+# real Payment Center, a real Email Center or a real chain — every one of those
+# is on the "cannot be verified locally" list and must stay reported as blocked
+# rather than faked green here.
+name: ci
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        # The suite provisions one database per test file, so the service role
+        # has to be able to create databases: it is the admin role, and
+        # DATABASE_URL below points at it.
+        image: postgres:17
+        env:
+          POSTGRES_USER: saas_framework
+          POSTGRES_PASSWORD: saas_framework
+          POSTGRES_DB: saas_framework
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U saas_framework"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      DATABASE_URL: postgresql://saas_framework:saas_framework@127.0.0.1:5432/saas_framework
+      # Must name the same role as DATABASE_URL above. The suite hands psql a
+      # password only when the administrator and the URL user are the same role
+      # (tests/support/database.ts, `adminProcessEnv`); rename one without the
+      # other and provisioning goes back to `fe_sendauth: no password supplied`.
+      TEST_DB_ADMIN_USER: saas_framework
+      # The suite asserts this exact origin and Better Auth signs against it, so
+      # it has to match a developer's `.env` default. Pointing it at
+      # 127.0.0.1 makes the auth tests see a different origin than the server
+      # they talk to, and Better Auth rejects the mismatch as cross-site.
+      APP_BASE_URL: http://localhost:3000
+      # Placeholders with the exact shape the capability matrix validates. No
+      # real credential ever reaches CI, and every third-party feature stays off.
+      BETTER_AUTH_SECRET: ci-only-better-auth-secret-value-000000
+      CRON_SECRET: ci-only-cron-secret-value-0000000000
+      # A real 32-byte key: `withdrawal-crypto.ts` re-encodes the value and
+      # rejects anything that is not exactly 32 bytes of canonical Base64.
+      INTEGRATION_ENCRYPTION_KEY_V1: a2tra2tra2tra2tra2tra2tra2tra2tra2tra2tra2s=
+      # No FEATURE_* here on purpose. Every test file pins the flags it needs
+      # before it imports `lib/config.ts` (which snapshots the matrix once), and
+      # the files that assert closed-by-default behaviour pin theirs off for the
+      # same reason. A flag exported here would be one more ambient input that
+      # no test asked for.
+      # These values are the defaults the contract tests fall back to, so the
+      # stubbed centre and the assertions agree. Changing them here changes what
+      # the payment tests expect to receive back.
+      PAYMENT_CENTER_BASE_URL: http://127.0.0.1:5000
+      PAYMENT_CENTER_API_KEY: vitest-payment-center-api-key
+      PAYMENT_CENTER_SITE_CODE: sf118b3fa313264a
+      PAYMENT_CENTER_WEBSITE_ID: 544d8d48-a2a9-4a18-b3a8-4b4ceae7c387
+      PAYMENT_CENTER_CALLBACK_SIGNING_SECRET: vitest-callback-signing-secret-0123456789abcdef
+      PAYMENT_CENTER_REFERRAL_API_KEY: vitest-referral-api-key
+      PAYMENT_CENTER_PAYMENT_INGEST_API_KEY: ci-only-payment-ingest-api-key
+      PAYMENT_CENTER_WITHDRAWAL_API_KEY: ci-only-withdrawal-api-key
+      # The capability matrix refuses these below 32 characters.
+      REFERRAL_PAYMENT_INGEST_SECRET: ci-only-payment-ingest-secret-0000000000
+      REFERRAL_WITHDRAWAL_REQUEST_SECRET: ci-only-withdrawal-secret-000000000000
+      INTEGRATION_ENCRYPTION_ACTIVE_VERSION: v1
+      REFERRAL_WITHDRAWAL_CURRENCY: USDT
+      # No Email Center listens in CI; the contract tests stub the HTTP layer.
+      EMAIL_CENTER_URL: http://127.0.0.1:3100
+      EMAIL_CENTER_API_KEY: ci-only-email-center-api-key
+      NEXT_PUBLIC_EMAIL_CENTER_WIDGET_KEY: ci-only-email-center-widget-key
+      RESEND_API_KEY: re_ci_only_placeholder_key
+      EMAIL_FROM: ci-only@example.com
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+      TURNSTILE_SECRET_KEY: 1x0000000000000000000000000000000AA
+      TURNSTILE_ALLOWED_HOSTNAMES: localhost,127.0.0.1
+      GOOGLE_CLIENT_ID: ci-only-google-client-id
+      GOOGLE_CLIENT_SECRET: ci-only-google-client-secret
+      GITHUB_CLIENT_ID: ci-only-github-client-id
+      GITHUB_CLIENT_SECRET: ci-only-github-client-secret
+      RECOVERY_RUNNER_MODE: manual
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Apply migrations
+        run: npm run db:migrate
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: Report the capability matrix
+        # Prints the feature matrix and proves the build is complete. It writes
+        # nothing, and the `postgres` admin is not needed for this step.
+        run: npm run seed
+      - name: Upload the coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+          if-no-files-found: ignore
+          retention-days: 7

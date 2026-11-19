@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "email_contact_outbox_one_processing_per_user" ON "email_contact_outbox" USING btree ("user_id") WHERE "email_contact_outbox"."status" = 'processing';

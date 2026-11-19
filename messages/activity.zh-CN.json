@@ -1,0 +1,28 @@
+{
+  "Activity": {
+    "title": "活动记录", "eyebrow": "你的账户时间线",
+    "description": "查看与你本人账户有关的资料、安全和账单事件。这里记录已发生的事实，记录从功能启用后开始。",
+    "log": "活动记录", "recent": "最近活动",
+    "timezone": "时间以 UTC 显示。", "feedLabel": "个人活动时间线",
+    "emptyTitle": "暂时没有活动记录", "emptyDescription": "功能启用后发生的账户变更和账单事件会显示在这里。",
+    "unavailable": "活动记录暂时无法加载，请稍后重新打开此页。", "sessionExpired": "登录已过期。", "signIn": "重新登录",
+    "loadOlder": "查看更早记录", "loading": "加载中…", "loaded": "已显示 {count} 条记录", "end": "已显示当前可用记录",
+    "categories": { "account": "账户", "security": "安全", "billing": "账单" },
+    "events": {
+      "account_created": { "title": "账户已创建", "description": "你的账户注册记录已保存。" },
+      "account_profile_updated": { "title": "个人资料已更新", "description": "姓名、邮件语言或邮件偏好发生了变更。" },
+      "account_email_changed": { "title": "账户邮箱已变更", "description": "账户已保存新的邮箱地址。活动记录不展示邮箱内容。" },
+      "security_email_verified": { "title": "邮箱已确认", "description": "账户邮箱的所有权确认状态已生效。" },
+      "security_email_unverified": { "title": "邮箱确认状态已更新", "description": "当前账户邮箱尚未完成所有权确认。" },
+      "security_password_changed": { "title": "密码已更新", "description": "账户密码凭据已发生变更。" },
+      "security_session_created": { "title": "登录会话已建立", "description": "系统建立了新的账户会话；注册或邮箱确认也可能建立会话。" },
+      "billing_checkout_created": { "title": "付款请求已创建", "description": "账户已创建付款请求，此记录不代表付款成功。" },
+      "billing_payment_confirmed": { "title": "付款已确认", "description": "账单已保存与你本人关联的有效付款凭证。" },
+      "billing_payment_reversed": { "title": "付款凭证已冲正", "description": "账单已记录这笔付款的冲正状态。" },
+      "billing_payment_restored": { "title": "付款凭证已恢复", "description": "账单已恢复这笔付款的有效状态。" },
+      "billing_access_granted": { "title": "服务权限已开通", "description": "账户已保存与有效付款关联的服务授权。" },
+      "billing_access_revoked": { "title": "服务授权已撤回", "description": "这笔账单对应的服务授权已被撤回。" },
+      "billing_access_restored": { "title": "服务授权已恢复", "description": "这笔账单对应的服务授权已恢复有效状态。" }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."saas_payment_method" ADD VALUE 'binance_pay';

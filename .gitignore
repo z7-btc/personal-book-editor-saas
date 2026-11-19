@@ -1,0 +1,55 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+/coverage
+/.playwright-cli/
+# Playwright writes both on every run: traces and screenshots on failure, and the
+# HTML report when one is requested. Neither belongs in a commit.
+/playwright-report/
+/test-results/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+# Any hand-made copy of the environment file: these carry the same live secrets
+# as `.env` and must never reach a commit.
+.env*.bak*
+.env.*.bak
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+.vscode
+
+# Docker
+postgres_data/
+.local-postgres/
+.local-pg-password.tmp
+.env*.local
+
+# CodeGraph 本地索引（本机生成的缓存，不进仓库）
+.codegraph/
