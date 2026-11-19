@@ -53,3 +53,7 @@ postgres_data/
 
 # CodeGraph 本地索引（本机生成的缓存，不进仓库）
 .codegraph/
+
+# 用户书稿与运行时数据（上传的 EPUB、逐章中间产物、导出成品都在这里，绝不入库）
+/data/
+/workspace/

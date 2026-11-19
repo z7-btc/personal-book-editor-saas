@@ -10,11 +10,11 @@ const events = [
   'activity.read', 'activity.write', 'activity.failure', 'auth.session',
   'email.sync', 'email.reconcile', 'email.verify', 'payment.inbox', 'payment.reconcile',
   'referral.sync', 'withdrawal.dispatch', 'subscription.change', 'maintenance.scrub',
-  'capability.report',
+  'capability.report', 'book.jobs',
 ] as const;
 const codes = ['OK', 'UNAUTHORIZED', 'INVALID_CURSOR', 'DATABASE_ERROR', 'ACTIVITY_UNAVAILABLE', 'WRITE_REJECTED'] as const;
 const modules = [
-  'activity', 'auth', 'billing', 'email-center', 'jobs',
+  'activity', 'auth', 'billing', 'book', 'email-center', 'jobs',
   'payment-center', 'referrals', 'subscription',
 ] as const;
 // `submitted` is the only status here that is a fact rather than a verdict: a

@@ -8,6 +8,8 @@ import { runPaymentInbox } from '@/lib/payment-center/inbox-worker';
 import { runReferralUserSync } from '@/lib/referrals/worker';
 import { runWithdrawalDispatch } from '@/lib/referrals/withdrawal-worker';
 import { refreshDueSubscriptions } from '@/lib/subscription/service';
+import { mirrorBookJobs, reconcileBookJobsOnBoot } from '@/lib/book-store/job-runner';
+import { reconcileAllUsers } from '@/lib/book-store/reconcile';
 import { logObservation, maskErrorCode } from '@/lib/observability/logger';
 
 /**
@@ -31,7 +33,7 @@ import { logObservation, maskErrorCode } from '@/lib/observability/logger';
  */
 
 type JobEvent = 'email.sync' | 'email.reconcile' | 'email.verify' | 'payment.reconcile'
-  | 'referral.sync' | 'withdrawal.dispatch';
+  | 'referral.sync' | 'withdrawal.dispatch' | 'book.jobs';
 
 type Job = {
   kind: string;
@@ -103,6 +105,15 @@ export const BACKGROUND_JOBS: Job[] = [
     enabled: () => getCapabilities().referralWithdrawals.configured,
     run: () => runWithdrawalDispatch({ maxJobs: 20, maxMillis: 20_000 }),
   },
+  {
+    // 书籍任务跑在本进程内存里（引擎的 JobManager），这里只做两件事：
+    // 把进度写进数据库、任务结束时同步书库卡片。任务本身不依赖这个循环。
+    kind: 'book-jobs',
+    event: 'book.jobs',
+    intervalMs: 5_000,
+    enabled: () => true,
+    run: () => mirrorBookJobs(),
+  },
 ];
 
 const TICK_MS = 5_000;
@@ -118,6 +129,23 @@ export function startBackgroundJobs() {
   const scope = globalThis as typeof globalThis & { [STARTED]?: boolean };
   if (scope[STARTED]) return;
   scope[STARTED] = true;
+
+  // 上次进程留下的书籍任务收尾：内存任务已不存在，但数据库行可能还是
+  // running、磁盘上的章节可能还停在 processing。启动时统一收拾一次。
+  void (async () => {
+    try {
+      await reconcileBookJobsOnBoot();
+      await reconcileAllUsers();
+    } catch (error) {
+      logObservation({
+        event: 'book.jobs',
+        module: 'book',
+        level: 'warn',
+        status: 'unavailable',
+        maskedErrorCode: maskErrorCode(error, 'BOOK_RECONCILE_FAILED'),
+      });
+    }
+  })();
 
   const lastRun = new Map<string, number>();
   let busy = false;

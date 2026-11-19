@@ -197,6 +197,13 @@
       "when": 1793000000000,
       "tag": "0027_shorten_existing_invite_codes",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1795054550424,
+      "tag": "0028_lean_human_cannonball",
+      "breakpoints": true
     }
   ]
 }
