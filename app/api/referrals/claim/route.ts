@@ -8,8 +8,11 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  // Same-origin check against the public site address; `request.url` is the
+  // internal listen address behind the production proxy.
   const origin = request.headers.get('origin');
-  if (origin && origin !== new URL(request.url).origin) {
+  const expectedOrigin = new URL(process.env.APP_BASE_URL || 'http://localhost:3000').origin;
+  if (origin && origin !== expectedOrigin) {
     return Response.json({ error: 'invalid_origin' }, { status: 403 });
   }
   const session = await auth.api.getSession({ headers: await headers() });
