@@ -28,8 +28,12 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * must not be allowed to block this one.
  */
 export async function POST(request: Request) {
+  // Compare against the public site address, not `request.url`: behind the
+  // production proxy that URL is the internal address this process listens on,
+  // so the site's own pages would be rejected as cross-origin.
   const origin = request.headers.get('origin');
-  if (origin && origin !== new URL(request.url).origin) {
+  const expectedOrigin = new URL(process.env.APP_BASE_URL || 'http://localhost:3000').origin;
+  if (origin && origin !== expectedOrigin) {
     return Response.json({ error: 'invalid_origin' }, { status: 403 });
   }
   if (!features.referrals && !getCapabilities().transactionalEmail.configured) {
