@@ -102,6 +102,46 @@ export type BookSummary = {
 
 export type ExportFile = { name: string; size: number; createdAt: string };
 
+export type BookProgress = {
+  total: number;
+  completed: number;
+  failed: number;
+  processing: number;
+  pending: number;
+  skipped: number;
+  rewritable: number;
+  totalTokens: number;
+  percent: number;
+};
+
+/**
+ * 书库列表里的「目录卡」（GET /api/books）。
+ *
+ * 它只查数据库里的目录，字段比工作台的 BookDetail 少：没有 exports 数组
+ * （只有 exportCount / latestExport 两个摘要），processed 里也只有 counts。
+ */
+export type BookCard = {
+  bookId: string;
+  title: string;
+  authors?: string[];
+  language?: string;
+  chapterCount: number;
+  status?: string;
+  progress: BookProgress | null;
+  exportCount: number;
+  latestExport: ExportFile | null;
+  processed: null | { counts: Record<string, number> };
+  pendingWork: null | {
+    reason?: string;
+    updatedAt?: string;
+    remaining?: number;
+    partialChapters?: number[];
+    failedChapters?: number[];
+  };
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type ChapterRow = {
   index: number;
   title: string;
@@ -351,7 +391,7 @@ const base = (bookId: string) => `/api/books/${encodeURIComponent(bookId)}`;
 
 export const booksApi = {
   /* 书库 -------------------------------------------------------------- */
-  list: () => request<{ books: BookSummary[] }>('/api/books'),
+  list: () => request<{ books: BookCard[] }>('/api/books'),
   get: (bookId: string) => request<{ book: BookDetail }>(base(bookId)),
   remove: (bookId: string) => request<{ ok: boolean }>(base(bookId), { method: 'DELETE' }),
   chapters: (bookId: string) =>

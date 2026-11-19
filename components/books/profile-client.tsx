@@ -159,8 +159,7 @@ export default function ProfileClient() {
       </section>
 
       <section className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
-        <h2 className="text-lg font-semibold">{t('profile.subtitle')}</h2>
-        <div className="mt-3 grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           {LIST_FIELDS.map((key) => (
             <label key={key} className="block space-y-1">
               <span className={label}>{t(`profile.fields.${key}`)}</span>
