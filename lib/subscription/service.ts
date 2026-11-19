@@ -39,8 +39,17 @@ const prepaidPeriodSchema = z.object({
   // Any channel whose capability card says it fulfils a paid period. The name
   // is not a local enum: a new channel must not need a code change here.
   method: z.string().trim().min(1).max(40),
-  interval: z.enum(['month', 'year']),
+  // `one_time` is the buyout: the centre stamps a far-future period end and the
+  // grant never lapses, so every period comparison below keeps working.
+  interval: z.enum(['one_time', 'month', 'year']),
 });
+
+/**
+ * How long a buyout period must run before it counts as permanent. The centre
+ * sends year 9999; a short span labelled `one_time` is a centre bug, and
+ * refusing it here keeps a month sold as "forever" from becoming a grant.
+ */
+const PERMANENT_MIN_SECONDS = 100 * 365 * 86_400;
 
 export type SettledPeriod = z.infer<typeof settledPeriodSchema>;
 export type PrepaidPeriod = z.infer<typeof prepaidPeriodSchema>;
@@ -137,8 +146,12 @@ export async function fulfillSubscription(periodInput: SettledPeriod | PrepaidPe
   const providerInvoiceId = prepaid ? null : (period as SettledPeriod).providerInvoiceId;
   const providerSubscriptionId = prepaid ? null : (period as SettledPeriod).providerSubscriptionId;
   const providerPaymentId = period.providerPaymentId;
+  const prepaidInterval = prepaid ? (period as PrepaidPeriod).interval : null;
+  const duration = period.servicePeriodEnd - period.servicePeriodStart;
   if (period.servicePeriodEnd <= period.servicePeriodStart ||
-      period.servicePeriodEnd - period.servicePeriodStart > 370 * 24 * 3600) {
+      (prepaidInterval === 'one_time'
+        ? duration < PERMANENT_MIN_SECONDS
+        : duration > 370 * 24 * 3600)) {
     throw new SubscriptionConflict('Service period is invalid');
   }
   if (period.settledAt > Math.floor(now.getTime() / 1000) + 300) {
@@ -177,9 +190,11 @@ export async function fulfillSubscription(periodInput: SettledPeriod | PrepaidPe
     if (!proofMatches) {
       throw new SubscriptionConflict('Prepaid payment evidence does not match the paid order');
     }
-    const duration = proof.servicePeriodEnd - proof.servicePeriodStart;
-    if (proof.interval === 'month' && (duration < 28 * 86_400 || duration > 31 * 86_400) ||
-        proof.interval === 'year' && (duration < 365 * 86_400 || duration > 366 * 86_400)) {
+    const proofDuration = proof.servicePeriodEnd - proof.servicePeriodStart;
+    if (proof.interval === 'month' &&
+          (proofDuration < 28 * 86_400 || proofDuration > 31 * 86_400) ||
+        proof.interval === 'year' &&
+          (proofDuration < 365 * 86_400 || proofDuration > 366 * 86_400)) {
       throw new SubscriptionConflict('Prepaid service period has an invalid duration');
     }
   } else if (order.kind !== 'subscription' ||
@@ -200,7 +215,7 @@ export async function fulfillSubscription(periodInput: SettledPeriod | PrepaidPe
       ? intent?.method === (period as PrepaidPeriod).method
       : intentPaymentAction(intent ?? { method: '' }) === 'redirect';
     if (!intent || !methodMatches ||
-        !['month', 'year'].includes(intent.priceInterval) ||
+        !['one_time', 'month', 'year'].includes(intent.priceInterval) ||
         ![intent.currency, order.currency].includes(period.currency) ||
         (prepaid && intent.priceInterval !== (period as PrepaidPeriod).interval) ||
         (intent.paymentCenterOrderId && intent.paymentCenterOrderId !== order.id)) {
@@ -273,8 +288,13 @@ export async function fulfillSubscription(periodInput: SettledPeriod | PrepaidPe
     // `proratedPeriodEnd`; an unpriced one (see `proratePlanSwitch`) arrives as
     // a plain continuation, so the running plan is compared directly. The caller
     // uses this to decide whether to cancel the superseded subscription.
+    //
+    // A buyout supersedes every renewal outright: permanent access cannot be
+    // topped up by a monthly charge, and leaving the mandate running would bill
+    // the buyer for something they already own forever.
     const planSwitched = Boolean(intent.proratedPeriodEnd) ||
-      Boolean(running && running.productCode !== intent.productCode);
+      Boolean(running && running.productCode !== intent.productCode) ||
+      (prepaid && (period as PrepaidPeriod).interval === 'one_time' && Boolean(running));
     // A plan switch owes the buyer two things at once, and the conversion used to
     // swallow the first: the full period the centre just sold them (the new plan's
     // own month or year) *plus* whatever their old plan's unused time converts

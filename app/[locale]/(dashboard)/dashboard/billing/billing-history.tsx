@@ -20,6 +20,10 @@ export function BillingHistoryView({ initial }: { initial: BillingHistory | null
     year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC',
     ...(time ? { hour: '2-digit', minute: '2-digit' } as const : {}),
   }).format(new Date(value));
+  // A buyout is a period ending in year 9999; printing that date would read as
+  // a bug, so it is shown as what it means.
+  const isPermanent = (value: string) => new Date(value).getUTCFullYear() >= 9000;
+  const bound = (value: string) => (isPermanent(value) ? t('permanent') : date(value));
   // A channel added in the Payment Center has no local translation yet. Show a
   // readable fallback instead of leaking the missing i18n key to the buyer.
   const methodLabel = (method: string | null | undefined) => {
@@ -104,7 +108,9 @@ export function BillingHistoryView({ initial }: { initial: BillingHistory | null
           {data.subscription.state === 'active' ? <>
             <p className="mt-6 break-words text-3xl font-semibold tracking-tight">{data.subscription.productCode}</p>
             <div className="mt-4 flex flex-wrap gap-x-8 gap-y-2 text-sm">
-              <p>{methodLabel(data.subscription.method)}</p><p>{t('paidUntil', { date: date(data.subscription.periodEnd!) })}</p>
+              <p>{methodLabel(data.subscription.method)}</p>
+              <p>{isPermanent(data.subscription.periodEnd!)
+                ? t('permanentAccess') : t('paidUntil', { date: date(data.subscription.periodEnd!) })}</p>
             </div>
             {data.subscription.method !== 'stripe' && <p className="mt-5 text-sm text-gray-600 dark:text-gray-300">{t('prepaid')}</p>}
           </> : <p className="mt-5 text-sm text-gray-600 dark:text-gray-300">{t('noAccess')}</p>}
@@ -119,7 +125,7 @@ export function BillingHistoryView({ initial }: { initial: BillingHistory | null
                 <p className="mt-3 text-xs text-gray-600 dark:text-gray-300">{date(payment.settledAt)}</p></div>
               <div className="min-w-0 text-sm"><p>{t(`paymentStates.${payment.status}`)}</p>
                 <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">{t(`accessStates.${payment.access}`)}</p>
-                <p className="mt-3 text-xs leading-5 text-gray-600 dark:text-gray-300">{t('period', { start: date(payment.periodStart), end: date(payment.periodEnd) })}</p></div>
+                <p className="mt-3 text-xs leading-5 text-gray-600 dark:text-gray-300">{t('period', { start: date(payment.periodStart), end: bound(payment.periodEnd) })}</p></div>
               <p className="max-w-full break-all font-mono text-sm font-medium tabular-nums md:text-right"><span className="sr-only">{t('amount')}: </span><bdi>{payment.amountDecimal} {payment.currency}</bdi></p>
             </li>)}
           </ul>}

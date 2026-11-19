@@ -14,7 +14,7 @@ const page = <T extends z.ZodType>(item: T) => z.object({
 
 export const billingOrderSchema = z.object({
   id: identifier, productCode: z.string().min(1).max(180),
-  interval: z.enum(['month', 'year']), method,
+  interval: z.enum(['one_time', 'month', 'year']), method,
   status: z.enum(['pending', 'submitting', 'action_required', 'unknown', 'failed',
     'cancelled', 'manual_review', 'awaiting_confirmation', 'settled']),
   amountDecimal: amount, currency, recordedAt: instant, hasVerifiedPayment: z.boolean(),
