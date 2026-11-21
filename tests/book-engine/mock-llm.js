@@ -81,7 +81,43 @@ export function createMockLlmServer(options = {}) {
     }
     requests.push({ messages: body.messages, body });
 
-    const userContent = body.messages?.find((m) => m.role === 'user')?.content || '';
+    /**
+     * 图片识请求（视觉模型）：user content 是数组，带 image_url。
+     * 单独判断，避免它落进改写分支被当成「没有段落标记」的垃圾。
+     */
+    const rawUserContent = body.messages?.find((m) => m.role === 'user')?.content ?? '';
+    const hasImage =
+      Array.isArray(rawUserContent) && rawUserContent.some((part) => part && part.type === 'image_url');
+    if (hasImage) {
+      if (behavior === 'rejectVision') {
+        res.writeHead(400, { 'content-type': 'application/json' });
+        res.end(
+          JSON.stringify({
+            error: {
+              message: 'Invalid content: this model does not support image input (image_url).',
+              type: 'invalid_request_error',
+            },
+          }),
+        );
+        return;
+      }
+      const textParts = rawUserContent.filter((part) => part && part.type === 'text');
+      const visionText =
+        behavior === 'visionEmpty' ? '' : visionMockText(textParts.map((p) => p.text || '').join('\n'));
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          id: 'chatcmpl-mock',
+          object: 'chat.completion',
+          model: body.model || 'mock-model',
+          choices: [{ index: 0, message: { role: 'assistant', content: visionText }, finish_reason: 'stop' }],
+          usage: { prompt_tokens: 100, completion_tokens: 50, total_tokens: 150 },
+        }),
+      );
+      return;
+    }
+
+    const userContent = typeof rawUserContent === 'string' ? rawUserContent : '';
     const systemContent = body.messages?.find((m) => m.role === 'system')?.content || '';
     const isReview = /审校员|Reviewer|"verdict"/.test(userContent) || /审校/.test(systemContent);
     /**
@@ -251,6 +287,11 @@ export function createMockLlmServer(options = {}) {
       await new Promise((resolve) => server.close(resolve));
     },
   };
+}
+
+function visionMockText(userText) {
+  const label = String(userText).match(/图号：([^\n]+)/)?.[1] || '这张图';
+  return `（mock 识图）${label}是一张数据表格的扫描图，表头为年份与收益率，能看到 1927 至 1932 年的数字；图片清晰。`;
 }
 
 /**
