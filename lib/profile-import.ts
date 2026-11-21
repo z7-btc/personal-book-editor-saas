@@ -118,6 +118,26 @@ const EMPTY_TOKENS = new Set([
 /** 一整段只是括号里的填写说明，比如「（用 100–250 字介绍……）」。 */
 const PLACEHOLDER_ONLY = /^[（(][^（()）]*[)）]$/;
 
+/** 括号里还提到这些词时，才更像「填写说明」而不是用户自己想说的话。 */
+const PLACEHOLDER_HINT = /(例如|比如|举例|填写|介绍|描述|用\s*\d|\d+\s*[-–—]\s*\d+\s*字|字左右|可选|选填|如[:：])/;
+
+/** 模型常把整段回答包进 ``` 代码块，围栏本身不是画像内容。 */
+const FENCE_LINE = /^\s*```/;
+
+/** 模型自己加的 `### 备注` 这类小标题：它结束上一段，而不是上一段的正文。 */
+const UNKNOWN_HEADING = /^#{1,6}\s+/;
+const UNKNOWN_BRACKET_HEADING = /^(?:【[^】]{1,40}】|\[[^\]]{1,40}\])\s*$/;
+
+function isPlaceholderLine(line: string): boolean {
+  const text = line.trim();
+  return PLACEHOLDER_ONLY.test(text) && PLACEHOLDER_HINT.test(text);
+}
+
+/** 「无。」「暂无！」和「无」一样，都是没内容。 */
+function emptyKey(text: string): string {
+  return text.trim().toLowerCase().replace(/[。.!！?？；;、,，\s]+$/g, '');
+}
+
 function normalizeKey(raw: string): string {
   return raw
     .trim()
@@ -192,12 +212,13 @@ function matchHeader(line: string, aliases: Map<string, ProfileField>): HeaderMa
 }
 
 function cleanListItem(raw: string): string[] {
+  if (FENCE_LINE.test(raw)) return [];
   const text = raw
     .replace(/^\s*(?:[-*•·、]|\d+[.)、]|[（(]\d+[)）])\s*/, '')
     .replace(/\*\*/g, '')
     .trim()
     .replace(/[；;、]\s*$/, '');
-  if (!text) return [];
+  if (!text || FENCE_LINE.test(text)) return [];
   if (PLACEHOLDER_ONLY.test(text)) return [];
   const pieces = text
     .split(/[；;、]/)
@@ -206,7 +227,7 @@ function cleanListItem(raw: string): string[] {
     .filter(Boolean);
   const out: string[] = [];
   for (const piece of pieces) {
-    if (EMPTY_TOKENS.has(piece.toLowerCase())) continue;
+    if (EMPTY_TOKENS.has(emptyKey(piece))) continue;
     if (PLACEHOLDER_ONLY.test(piece)) continue;
     out.push(piece.slice(0, 500));
   }
@@ -216,13 +237,16 @@ function cleanListItem(raw: string): string[] {
 function cleanString(lines: string[]): string {
   // 文本框字段也可能被模型按列表输出（尤其 custom_instructions）。这里只去掉
   // 行首的项目符号，保留一行一条；正文如果本来以「-」开头，去掉后也更干净。
+  // 夹在正文里的填写说明（「（用 100–250 字介绍……）」）和代码围栏也一并丢掉：
+  // 模型经常把它们和真内容混在同一段里。
   const text = lines
+    .filter((line) => !FENCE_LINE.test(line) && !isPlaceholderLine(line))
     .map((line) => line.replace(/^\s*(?:[-*•·]|\d+[.)、]|[（(]\d+[)）])\s+/, ''))
     .join('\n')
     .replace(/\*\*/g, '')
     .trim();
   if (!text) return '';
-  if (EMPTY_TOKENS.has(text.toLowerCase())) return '';
+  if (EMPTY_TOKENS.has(emptyKey(text))) return '';
   if (PLACEHOLDER_ONLY.test(text)) return '';
   return text.slice(0, 20000);
 }
@@ -253,26 +277,37 @@ const SIGNOFF = [
   /^(this should|i hope this)/i,
 ];
 
-function isSignoff(line: string): boolean {
+/**
+ * 判断一行是不是客套收尾，并把它后面的真内容分出来。
+ *
+ * 模型常写成「希望这份画像对你有帮助！另外，请保留原书表格。」——前半句要丢，
+ * 后半句是用户想要的指令。整行删掉会丢内容，整行留下又会把客套塞进画像。
+ */
+function stripSignoff(line: string): { signoff: boolean; rest: string } {
   const text = line.trim();
-  if (!text) return false;
-  return SIGNOFF.some((pattern) => pattern.test(text));
+  if (!text) return { signoff: false, rest: '' };
+  const match = text.match(/^([^。！!？?]*[。！!？?])\s*(.*)$/s);
+  const first = match ? match[1] : text;
+  if (!SIGNOFF.some((pattern) => pattern.test(first))) return { signoff: false, rest: '' };
+  return { signoff: true, rest: match ? match[2].trim() : '' };
 }
 
 /** 去掉区块末尾的空行与客套收尾；不会把区块清空。 */
 function trimSignoff(lines: string[]): string[] {
   const out = [...lines];
   while (out.length) {
-    const last = out[out.length - 1].trim();
-    if (!last) {
+    const last = out[out.length - 1];
+    if (!last.trim()) {
       out.pop();
       continue;
     }
-    if (isSignoff(last)) {
-      out.pop();
-      continue;
+    const { signoff, rest } = stripSignoff(last);
+    if (!signoff) break;
+    if (rest) {
+      out[out.length - 1] = rest;
+      break;
     }
-    break;
+    out.pop();
   }
   return out;
 }
@@ -282,11 +317,20 @@ function parseBlocks(text: string, aliases: Map<string, ProfileField>): ParsedPr
   let current: ProfileField | null = null;
 
   for (const line of text.split(/\r?\n/)) {
+    if (FENCE_LINE.test(line)) continue;
     const header = matchHeader(line, aliases);
     if (header) {
       current = header.field;
       if (!buckets.has(current)) buckets.set(current, []);
       if (header.rest.trim()) buckets.get(current)!.push(header.rest.trim());
+      continue;
+    }
+    // 模型自己加的小标题（`### 备注`、【备注】）是上一段的结束，不是正文：
+    // 否则「请保留原书表格」会被并进 about_me。它后面的内容按未知段落忽略，
+    // 宁可少填一个字段，也不把内容塞错地方。
+    const trimmed = line.trim();
+    if (UNKNOWN_HEADING.test(trimmed) || UNKNOWN_BRACKET_HEADING.test(trimmed)) {
+      current = null;
       continue;
     }
     if (current) buckets.get(current)!.push(line);

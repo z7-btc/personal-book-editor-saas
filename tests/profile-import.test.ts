@@ -187,6 +187,66 @@ describe('parseProfilePaste', () => {
     expect(parsed.preferred_style).toBeUndefined();
   });
 
+  it('drops code fences when the model wraps its whole answer in markdown', () => {
+    const parsed = parseProfilePaste([
+      '```markdown',
+      '### about_me',
+      '后端工程师。',
+      '### preferred_style',
+      '- 先说结论',
+      '### custom_instructions',
+      '保留原书表格。',
+      '```',
+    ].join('\n'));
+    expect(parsed.about_me).toBe('后端工程师。');
+    expect(parsed.preferred_style).toEqual(['先说结论']);
+    expect(parsed.custom_instructions).toBe('保留原书表格。');
+    expect(JSON.stringify(parsed)).not.toContain('```');
+  });
+
+  it('drops a placeholder line that sits above real content', () => {
+    const parsed = parseProfilePaste([
+      '### about_me',
+      '（用 100–250 字介绍我的背景、职业、知识水平）',
+      '我是后端工程师，晚上读书。',
+    ].join('\n'));
+    expect(parsed.about_me).toBe('我是后端工程师，晚上读书。');
+  });
+
+  it('ends a section at a heading the prompt did not ask for', () => {
+    const parsed = parseProfilePaste([
+      '### about_me',
+      '我是后端工程师。',
+      '### 备注',
+      '请保留原书表格。',
+      '### preferred_style',
+      '- 先说结论',
+    ].join('\n'));
+    expect(parsed.about_me).toBe('我是后端工程师。');
+    expect(parsed.preferred_style).toEqual(['先说结论']);
+    expect(JSON.stringify(parsed)).not.toContain('备注');
+    expect(JSON.stringify(parsed)).not.toContain('请保留原书表格');
+  });
+
+  it('treats an empty answer with punctuation as empty', () => {
+    const parsed = parseProfilePaste([
+      '### reading_goal',
+      '无。',
+      '### weak_topics',
+      '暂无！',
+    ].join('\n'));
+    expect(parsed.reading_goal).toBeUndefined();
+    expect(parsed.weak_topics).toBeUndefined();
+  });
+
+  it('keeps the instruction that follows a sign-off in the same line', () => {
+    const parsed = parseProfilePaste([
+      '### custom_instructions',
+      '希望这份画像对你有帮助！另外，请保留原书表格。',
+    ].join('\n'));
+    expect(parsed.custom_instructions).toBe('另外，请保留原书表格。');
+  });
+
   it('returns nothing for text it cannot recognise instead of guessing', () => {
     expect(parseProfilePaste('这是一段随便写的话，没有字段。')).toEqual({});
     expect(parseProfilePaste('')).toEqual({});
