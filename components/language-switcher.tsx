@@ -13,7 +13,7 @@ import {
 
 // Each option is written in its own language on purpose: someone who cannot
 // read the current interface language still needs to find their own.
-const LOCALES = [
+export const LOCALES = [
   { value: 'zh-CN', label: '简体中文' },
   { value: 'en', label: 'English' },
   { value: 'ja', label: '日本語' },
