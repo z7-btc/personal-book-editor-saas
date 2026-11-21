@@ -59,10 +59,19 @@ function neverHydrated(): boolean {
 }
 
 /**
+ * The current choice, kept in sync with `applyThemeChoice` through the same
+ * listener set. Menus that offer the three options share this instead of
+ * copying the cookie into local state.
+ */
+export function useThemeChoice(): ThemeChoice {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
+
+/**
  * Written outside the component so it reads as the event-time side effect it
  * is, not as work that might run while rendering.
  */
-function applyThemeChoice(next: ThemeChoice) {
+export function applyThemeChoice(next: ThemeChoice) {
   document.cookie = themeCookieValue(next);
   // The class is applied here rather than by a re-render: `<html>` belongs to
   // the server layout, and a switch that waited for a navigation would leave

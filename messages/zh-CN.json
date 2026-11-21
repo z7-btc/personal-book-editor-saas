@@ -12,7 +12,16 @@
     "light": "浅色",
     "dark": "深色",
     "system": "跟随系统",
-    "referrals": "邀请返佣"
+    "referrals": "邀请返佣",
+    "library": "书库",
+    "help": "帮助",
+    "account": "账户",
+    "preferences": "偏好",
+    "navSection": "导航",
+    "accountSection": "账户",
+    "preferenceSection": "偏好",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单"
   },
   "Login": {
     "signInTitle": "登录",
@@ -233,7 +242,11 @@
     "referrals": "邀请返佣",
     "account": "账户",
     "security": "安全",
-    "activity": "活动"
+    "activity": "活动",
+    "group": {
+      "reading": "阅读",
+      "account": "账户"
+    }
   },
   "Dashboard": {
     "setupPending": "账户正在初始化",
@@ -975,6 +988,26 @@
       "show": "展开",
       "empty": "没有正在跑的任务。",
       "minimize": "收起"
+    },
+    "profileImport": {
+      "title": "用你常用的 AI 一键填写",
+      "subtitle": "常陪你聊天的 AI（ChatGPT、Gemini、Claude 等）往往比一张空表格更清楚你的背景和阅读口味。把下面这段提示词发给它，再把它的回答整段粘贴回来，就能自动填好整张画像。",
+      "step1": "复制提示词，发给你常用的 AI",
+      "step2": "等它回答完，把整段回答复制下来",
+      "step3": "粘贴到下面，点「导入」——字段会填好并自动保存",
+      "promptLabel": "提示词（可直接复制）",
+      "copy": "复制提示词",
+      "copied": "已复制",
+      "pasteLabel": "粘贴 AI 的回答",
+      "pastePlaceholder": "把 AI 的整段回答粘贴到这里，包括 ### about_me 这些小标题……",
+      "importButton": "导入",
+      "importing": "导入中…",
+      "importedCount": "已导入 {count} 个字段，画像已保存。",
+      "nothingFound": "没找到可识别的字段。请确认粘贴的是完整回答，并且保留了 ### about_me 这类小标题。",
+      "saveFailed": "解析成功，但保存失败，请稍后重试。",
+      "prompt": "你和我聊过不少，对我有相当了解。现在请帮我填一份「阅读画像」，它会被一个 AI 图书编辑器用来重写我读的书，让内容更贴合我。\n\n写作要求：\n1. 只写你确实知道、或能从我们的对话中可靠推断的内容；不确定的区块整段省略，不要编造，也不要用「可能」「大概」这类模糊说法。\n2. 用第二人称称呼我（「你……」）。\n3. 每条都要具体可执行：与其写「喜欢简洁」，不如写「先给结论，再用两三句话讲清论证」。\n4. 不要夸我，不要客套。\n\n输出格式（严格遵守）：\n- 只输出下面的区块，不要开场白、结尾、解释，也不要用代码块。\n- 每个小标题必须原样照抄，包括英文和 ###，不要翻译，标题单独占一行。\n- 列表区块一行一条，每条以「- 」开头，不超过 30 个字。\n- 某个区块没有内容就整段省略，不要保留空标题。\n\n### about_me\n（用 100–250 字介绍我的背景、职业、知识水平，以及我每天大概有多少时间读书）\n\n### reading_goal\n（我读非虚构类书通常想得到什么，1–3 句话）\n\n### preferred_style\n（我喜欢的表达方式，3–8 条。例如：先给结论再讲论证）\n\n### disliked_style\n（我不喜欢的表达方式，3–8 条。例如：堆砌术语、空洞的鸡汤）\n\n### known_topics\n（我已经比较熟悉的领域或主题，3–8 条）\n\n### weak_topics\n（我需要被耐心解释的领域或主题，3–8 条）\n\n### explanation_preferences\n（我希望被怎样解释，3–8 条。例如：多用生活里的比喻、给出具体例子）\n\n### language_preferences\n（我在语言和用词上的偏好，1–5 条。例如：中文里少夹英文术语）\n\n### custom_instructions\n（其他希望编辑器记住的要求，1–3 条）",
+      "expandPrompt": "展开完整提示词",
+      "collapsePrompt": "收起提示词"
     }
   },
   "Landing": {

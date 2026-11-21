@@ -12,7 +12,16 @@
     "light": "Claro",
     "dark": "Oscuro",
     "system": "Sistema",
-    "referrals": "Referidos"
+    "referrals": "Referidos",
+    "library": "Biblioteca",
+    "help": "Ayuda",
+    "account": "Cuenta",
+    "preferences": "Preferencias",
+    "navSection": "Navegación",
+    "accountSection": "Cuenta",
+    "preferenceSection": "Preferencias",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
   },
   "Login": {
     "signInTitle": "Iniciar sesión",
@@ -233,7 +242,11 @@
     "referrals": "Referidos",
     "account": "Cuenta",
     "security": "Seguridad",
-    "activity": "Actividad"
+    "activity": "Actividad",
+    "group": {
+      "reading": "Lectura",
+      "account": "Cuenta"
+    }
   },
   "Dashboard": {
     "setupPending": "La configuración de la cuenta está pendiente",
@@ -975,6 +988,26 @@
       "show": "Expandir",
       "empty": "No hay trabajos en curso.",
       "minimize": "Contraer"
+    },
+    "profileImport": {
+      "title": "Rellénalo con la IA que ya usas",
+      "subtitle": "Una IA con la que hablas a menudo (ChatGPT, Gemini, Claude…) suele conocer tu contexto y tus gustos de lectura mejor que un formulario vacío. Envíale el prompt de abajo y pega aquí su respuesta completa.",
+      "step1": "Copia el prompt y envíalo a tu IA habitual",
+      "step2": "Copia su respuesta completa",
+      "step3": "Pégala abajo y pulsa «Importar»: los campos se rellenan y se guardan",
+      "promptLabel": "Prompt (listo para copiar)",
+      "copy": "Copiar prompt",
+      "copied": "Copiado",
+      "pasteLabel": "Pega la respuesta de la IA",
+      "pastePlaceholder": "Pega aquí la respuesta completa, incluidos los encabezados como ### about_me…",
+      "importButton": "Importar",
+      "importing": "Importando…",
+      "importedCount": "Se importaron y guardaron {count} campos.",
+      "nothingFound": "No se encontraron campos reconocibles. Comprueba que pegaste la respuesta completa y que conserva encabezados como ### about_me.",
+      "saveFailed": "Se pudo analizar, pero no guardar. Inténtalo de nuevo.",
+      "prompt": "Hemos hablado bastante, así que me conoces bien. Rellena mi «perfil de lectura». Un editor de libros con IA lo usará para reescribir los libros que leo y que encajen mejor conmigo.\n\nReglas:\n1. Escribe solo lo que sepas de verdad o puedas deducir con seguridad de nuestras conversaciones. Si dudas de una sección, omítela entera. No inventes ni uses expresiones como «probablemente» o «quizá».\n2. Dirígete a mí en segunda persona («tú …»).\n3. Cada línea debe ser concreta y aplicable: en vez de «le gusta la brevedad», escribe «empieza por la conclusión y luego explica el argumento en dos o tres frases».\n4. Nada de halagos ni fórmulas de cortesía.\n\nFormato de salida (síguelo al pie de la letra):\n- Devuelve solo las secciones de abajo: sin introducción, sin cierre, sin explicaciones y sin bloques de código.\n- Copia cada encabezado exactamente como está, incluido el inglés y los ###. No lo traduzcas. Un encabezado por línea.\n- En las secciones de lista, un elemento por línea, cada línea empieza por «- » y cada elemento tiene como máximo 30 palabras.\n- Si una sección no tiene contenido, omítela entera; no dejes encabezados vacíos.\n\n### about_me\n(100–250 palabras sobre mi formación, trabajo, nivel de conocimiento y cuánto tiempo tengo al día para leer)\n\n### reading_goal\n(Qué suelo buscar en un libro de no ficción, 1–3 frases)\n\n### preferred_style\n(Cómo me gusta que se expresen las ideas, 3–8 elementos. Ejemplo: primero la conclusión, luego el argumento)\n\n### disliked_style\n(Qué no me gusta al leer, 3–8 elementos. Ejemplo: acumular jerga, motivación vacía)\n\n### known_topics\n(Áreas o temas que ya conozco bien, 3–8 elementos)\n\n### weak_topics\n(Áreas o temas que necesito que me expliquen con paciencia, 3–8 elementos)\n\n### explanation_preferences\n(Cómo quiero que me expliquen las cosas, 3–8 elementos. Ejemplo: analogías cotidianas, ejemplos concretos)\n\n### language_preferences\n(Mis preferencias de lengua y vocabulario, 1–5 elementos. Ejemplo: español claro, pocos términos en inglés)\n\n### custom_instructions\n(Cualquier otra cosa que el editor deba recordar, 1–3 elementos)",
+      "expandPrompt": "Mostrar el prompt completo",
+      "collapsePrompt": "Contraer el prompt"
     }
   },
   "Landing": {

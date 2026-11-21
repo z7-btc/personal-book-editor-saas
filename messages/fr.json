@@ -12,7 +12,16 @@
     "light": "Clair",
     "dark": "Sombre",
     "system": "Système",
-    "referrals": "Parrainage"
+    "referrals": "Parrainage",
+    "library": "Bibliothèque",
+    "help": "Aide",
+    "account": "Compte",
+    "preferences": "Préférences",
+    "navSection": "Navigation",
+    "accountSection": "Compte",
+    "preferenceSection": "Préférences",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu"
   },
   "Login": {
     "signInTitle": "Se connecter",
@@ -233,7 +242,11 @@
     "referrals": "Parrainage",
     "account": "Compte",
     "security": "Sécurité",
-    "activity": "Activité"
+    "activity": "Activité",
+    "group": {
+      "reading": "Lecture",
+      "account": "Compte"
+    }
   },
   "Dashboard": {
     "setupPending": "La configuration du compte est en attente",
@@ -975,6 +988,26 @@
       "show": "Déplier",
       "empty": "Aucune tâche en cours.",
       "minimize": "Réduire"
+    },
+    "profileImport": {
+      "title": "Remplis-le avec l'IA que tu utilises déjà",
+      "subtitle": "Une IA avec qui tu discutes souvent (ChatGPT, Gemini, Claude…) connaît souvent mieux ton parcours et tes goûts de lecture qu'un formulaire vide. Envoie-lui le prompt ci-dessous, puis colle sa réponse entière ici.",
+      "step1": "Copie le prompt et envoie-le à ton IA habituelle",
+      "step2": "Copie sa réponse entière",
+      "step3": "Colle-la ci-dessous et clique sur « Importer » : les champs se remplissent et sont enregistrés",
+      "promptLabel": "Prompt (prêt à copier)",
+      "copy": "Copier le prompt",
+      "copied": "Copié",
+      "pasteLabel": "Colle la réponse de l'IA",
+      "pastePlaceholder": "Colle ici la réponse entière, y compris les titres comme ### about_me…",
+      "importButton": "Importer",
+      "importing": "Importation…",
+      "importedCount": "{count} champs importés et enregistrés.",
+      "nothingFound": "Aucun champ reconnu. Vérifie que tu as collé la réponse entière et qu'elle garde des titres comme ### about_me.",
+      "saveFailed": "Lecture réussie, mais l'enregistrement a échoué. Réessaie.",
+      "prompt": "Nous avons assez parlé pour que tu me connaisses bien. Remplis mon « profil de lecture ». Un éditeur de livres par IA s'en servira pour réécrire les livres que je lis afin qu'ils me correspondent mieux.\n\nRègles :\n1. N'écris que ce que tu sais vraiment ou ce que tu peux déduire sûrement de nos échanges. Si tu hésites sur une section, omets-la entièrement. N'invente rien et évite les formules comme « probablement » ou « peut-être ».\n2. Adresse-toi à moi à la deuxième personne (« tu … »).\n3. Chaque ligne doit être concrète et applicable : plutôt que « aime la concision », écris « commence par la conclusion, puis explique l'argument en deux ou trois phrases ».\n4. Pas de compliments ni de formules de politesse.\n\nFormat de sortie (à respecter exactement) :\n- Ne rends que les sections ci-dessous : pas d'introduction, pas de conclusion, pas d'explications, pas de bloc de code.\n- Recopie chaque titre exactement tel quel, avec l'anglais et les ###. Ne le traduis pas. Un titre par ligne.\n- Dans les sections de liste, un élément par ligne, chaque ligne commence par « - » et fait au plus 30 mots.\n- Si une section est vide, omets-la entièrement ; ne laisse pas de titre vide.\n\n### about_me\n(100 à 250 mots sur mon parcours, mon métier, mon niveau de connaissance et le temps que j'ai chaque jour pour lire)\n\n### reading_goal\n(Ce que je cherche habituellement dans un essai, 1 à 3 phrases)\n\n### preferred_style\n(Comment j'aime que les idées soient formulées, 3 à 8 éléments. Exemple : d'abord la conclusion, puis l'argumentation)\n\n### disliked_style\n(Ce que je n'aime pas dans l'écriture, 3 à 8 éléments. Exemple : accumulation de jargon, motivation creuse)\n\n### known_topics\n(Domaines ou sujets que je connais déjà bien, 3 à 8 éléments)\n\n### weak_topics\n(Domaines ou sujets qu'il faut m'expliquer patiemment, 3 à 8 éléments)\n\n### explanation_preferences\n(Comment je veux que l'on m'explique les choses, 3 à 8 éléments. Exemple : analogies du quotidien, exemples concrets)\n\n### language_preferences\n(Mes préférences de langue et de vocabulaire, 1 à 5 éléments. Exemple : français clair, peu de termes anglais)\n\n### custom_instructions\n(Tout ce que l'éditeur doit garder en tête, 1 à 3 éléments)",
+      "expandPrompt": "Afficher le prompt complet",
+      "collapsePrompt": "Réduire le prompt"
     }
   },
   "Landing": {
