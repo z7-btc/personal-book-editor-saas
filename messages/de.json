@@ -625,7 +625,7 @@
   "Books": {
     "nav": {
       "library": "Bibliothek",
-      "settings": "Editor-Einstellungen",
+      "settings": "KI-Modell-Einstellungen",
       "profile": "Leserprofil",
       "prompts": "Prompt-Vorlagen"
     },
@@ -847,7 +847,7 @@
       }
     },
     "settings": {
-      "title": "Editor-Einstellungen",
+      "title": "KI-Modell-Einstellungen",
       "subtitle": "Modellanbieter, Kostentempo und Qualitätsschwellen für den Buch-Editor.",
       "savedToast": "Einstellungen gespeichert.",
       "providers": {

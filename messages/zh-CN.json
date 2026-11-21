@@ -625,7 +625,7 @@
   "Books": {
     "nav": {
       "library": "书库",
-      "settings": "编辑器设置",
+      "settings": "AI 模型设置",
       "profile": "阅读画像",
       "prompts": "提示词模板"
     },
@@ -847,7 +847,7 @@
       }
     },
     "settings": {
-      "title": "编辑器设置",
+      "title": "AI 模型设置",
       "subtitle": "书籍编辑器的模型服务、花费速度和质检阈值都在这。",
       "savedToast": "设置已保存。",
       "providers": {
