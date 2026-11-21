@@ -625,7 +625,7 @@
   "Books": {
     "nav": {
       "library": "Library",
-      "settings": "Editor settings",
+      "settings": "AI model settings",
       "profile": "Reader profile",
       "prompts": "Prompt templates"
     },
@@ -847,7 +847,7 @@
       }
     },
     "settings": {
-      "title": "Editor settings",
+      "title": "AI model settings",
       "subtitle": "Model providers, spending speed and quality thresholds for the book editor.",
       "savedToast": "Settings saved.",
       "providers": {
