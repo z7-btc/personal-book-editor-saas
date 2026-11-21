@@ -625,7 +625,7 @@
   "Books": {
     "nav": {
       "library": "Biblioteca",
-      "settings": "Ajustes del editor",
+      "settings": "Ajustes del modelo de IA",
       "profile": "Perfil de lectura",
       "prompts": "Plantillas de prompt"
     },
@@ -847,7 +847,7 @@
       }
     },
     "settings": {
-      "title": "Ajustes del editor",
+      "title": "Ajustes del modelo de IA",
       "subtitle": "Proveedores de modelos, velocidad de gasto y umbrales de calidad del editor de libros.",
       "savedToast": "Ajustes guardados.",
       "providers": {
