@@ -39,6 +39,11 @@ export function useHoverMenu() {
   const closedTargets = useRef<Set<Element>>(new Set());
   /** 指针当前停留的触发器/面板元素，用来判断指针到底离开了没有。 */
   const hoverTargets = useRef<Set<Element>>(new Set());
+  /**
+   * 触发按钮本身。它不会随菜单卸载，面板刚收起的那一帧 React 的合成
+   * pointerenter 偶尔会漏掉，靠这个引用兜底判断「指针是不是落回按钮了」。
+   */
+  const triggerEl = useRef<Element | null>(null);
   const leaveWatch = useRef<((event: PointerEvent) => void) | null>(null);
 
   useEffect(() => {
@@ -113,6 +118,14 @@ export function useHoverMenu() {
         if (target && element.contains(target)) return;
       }
       resumeHover();
+      // 指针已经落在触发器上：算一次新的靠近，直接安排展开。React 的合成
+      // pointerenter 在面板刚卸载的那一帧可能不发，所以这里不看事件、只看元素。
+      const trigger = triggerEl.current;
+      if (target && trigger && trigger.isConnected && trigger.contains(target)) {
+        hoverTargets.current.add(trigger);
+        scheduleOpen();
+        return;
+      }
       for (const element of hoverTargets.current) {
         if (!element.isConnected) continue;
         if (target && element.contains(target)) {
@@ -141,6 +154,8 @@ export function useHoverMenu() {
     onPointerEnter: (event: ReactPointerEvent<HTMLElement>) => {
       if (!canHover.current) return;
       const element = event.currentTarget;
+      // 面板里的元素不算触发器（面板刚收起时可能还会短暂留下一个节点）。
+      if (!element.closest('[role="menu"]')) triggerEl.current = element;
       hoverTargets.current.add(element);
       cancelClose();
       // 落在收起时以外的元素上：指针已经离开又回来，照常允许悬停展开。
