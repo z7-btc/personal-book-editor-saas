@@ -139,6 +139,49 @@ test('★ 重排之后再插页，新页仍然在最前面（queryAll 会按源�
   assert.deepEqual(after.spine.map((s) => s.idref), ['pbe-reading-path', 'notes', 'ch3', 'ch1', 'ch2'], '重排结果不能被插页破坏');
 });
 
+/**
+ * 分层目录必须**逐层**重排。
+ *
+ * 实测：《证券分析》的 NCX 把整册正文挂在「上册」「下册」两个顶层条目
+ * 下面。只排顶层时，卷内章节仍是原书顺序，目录面板里看到的先后
+ * 和实际翻页顺序对不上（上册里第 2 版前言排在第一部分前面，
+ * 而那几篇提要其实被挪到了附录之后）。
+ */
+test('★ 分层目录：卷标下面的章节也要跟着重排，不能只排顶层', () => {
+  const base = readEpub(makeFixtureEpub());
+  const ncx = new ZipReader(makeFixtureEpub()).readText('OEBPS/toc.ncx');
+  const nested = ncx.replace(
+    /<navMap>[\s\S]*<\/navMap>/,
+    `<navMap>
+    <navPoint id="np-vol" playOrder="1"><navLabel><text>上册</text></navLabel><content src="text/chapter1.xhtml"/>
+      <navPoint id="np2" playOrder="2"><navLabel><text>第二章 深入</text></navLabel><content src="text/chapter2.xhtml"/></navPoint>
+      <navPoint id="np3" playOrder="3"><navLabel><text>第三章 表格与代码</text></navLabel><content src="text/chapter3.xhtml"/></navPoint>
+      <navPoint id="np1" playOrder="4"><navLabel><text>第一章 起点</text></navLabel><content src="text/chapter1.xhtml"/></navPoint>
+    </navPoint>
+    <navPoint id="np-notes" playOrder="5"><navLabel><text>注释</text></navLabel><content src="text/endnotes.xhtml"/></navPoint>
+  </navMap>`,
+  );
+  const book = readEpub(repackEpub(base, { replacements: new Map([['OEBPS/toc.ncx', nested]]) }).buffer);
+
+  const wanted = ['OEBPS/text/chapter3.xhtml', 'OEBPS/text/chapter1.xhtml', 'OEBPS/text/chapter2.xhtml', 'OEBPS/text/endnotes.xhtml'];
+  const { updates, issues } = reorderToc(book, wanted);
+  assert.deepEqual(issues, [], `不该有跳过：${issues.join('；')}`);
+
+  const after = new ZipReader(repackEpub(book, { replacements: updates }).buffer).readText('OEBPS/toc.ncx');
+  const srcs = [...after.matchAll(/<content[^>]*src="([^"]+)"/g)].map((m) => m[1]);
+  // 第一条是「上册」自己的 content，后面三条才是卷内章节
+  assert.deepEqual(
+    srcs.slice(1, 4),
+    ['text/chapter3.xhtml', 'text/chapter1.xhtml', 'text/chapter2.xhtml'],
+    `卷内章节应跟着名次排，实际 ${srcs.join(' → ')}`,
+  );
+  assert.equal(srcs[0], 'text/chapter1.xhtml', '卷标本身仍排第一（子树名次最小）');
+  assert.equal(srcs.at(-1), 'text/endnotes.xhtml', '卷外条目不受影响');
+
+  const plays = [...after.matchAll(/playOrder="(\d+)"/g)].map((m) => Number(m[1]));
+  assert.deepEqual(plays, plays.map((_, i) => i + 1), `playOrder 应按新顺序连续，实际 ${plays.join(',')}`);
+});
+
 test('目录里认不出的条目不会被丢掉，只是排到最后', () => {
   const book = readEpub(makeFixtureEpub());
   // 只声明一部分文件顺序，其余应保持原相对次序排在最后
