@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ApiError, booksApi, type ProfileView } from './api';
+import ProfileImportCard from './profile-import-card';
+import { mergeParsedProfile, type ParsedProfile, type ProfileField } from '@/lib/profile-import';
 
 const EMPTY: ProfileView = {
   about_me: '',
@@ -91,6 +93,37 @@ export default function ProfileClient() {
     'w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-gray-400 dark:border-gray-700 dark:focus:border-gray-500';
   const label = 'text-xs font-medium text-gray-600 dark:text-gray-400';
 
+  const fieldLabels: Partial<Record<ProfileField, string>> = {
+    about_me: t('profile.fields.about_me'),
+    reading_goal: t('profile.fields.reading_goal'),
+    preferred_style: t('profile.fields.preferred_style'),
+    disliked_style: t('profile.fields.disliked_style'),
+    known_topics: t('profile.fields.known_topics'),
+    weak_topics: t('profile.fields.weak_topics'),
+    explanation_preferences: t('profile.fields.explanation_preferences'),
+    language_preferences: t('profile.fields.language_preferences'),
+    custom_instructions: t('profile.fields.custom_instructions'),
+  };
+
+  /**
+   * 导入 = 合并 + 立即保存。粘贴里没有的字段保持原样，用户手填的内容不会被
+   * AI 的回答清掉；写完直接落盘，不用再点一次「保存」。
+   */
+  const applyImport = useCallback(async (parsed: ParsedProfile) => {
+    const { profile, fields } = mergeParsedProfile(draft, parsed);
+    if (!fields.length) return 0;
+    const data = await booksApi.saveProfile(profile as ProfileView);
+    const next = { ...EMPTY, ...data.profile };
+    for (const key of LIST_FIELDS) {
+      if (!Array.isArray(next[key])) next[key] = [];
+    }
+    setLoaded(next);
+    setDraft(next);
+    setError('');
+    setMessage('');
+    return fields.length;
+  }, [draft]);
+
   function setText(key: 'about_me' | 'reading_goal' | 'custom_instructions', value: string) {
     setDraft((prev) => ({ ...prev, [key]: value }));
   }
@@ -121,6 +154,8 @@ export default function ProfileClient() {
         <p className="max-w-3xl text-sm text-gray-600 dark:text-gray-400">{t('profile.subtitle')}</p>
         <p className="text-xs text-gray-500 dark:text-gray-400">{t('profile.hint')}</p>
       </header>
+
+      <ProfileImportCard labels={fieldLabels} onImport={applyImport} />
 
       {message && (
         <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
