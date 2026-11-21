@@ -12,7 +12,16 @@
     "light": "Light",
     "dark": "Dark",
     "system": "System",
-    "referrals": "Referrals"
+    "referrals": "Referrals",
+    "library": "Library",
+    "help": "Help",
+    "account": "Account",
+    "preferences": "Preferences",
+    "navSection": "Navigation",
+    "accountSection": "Account",
+    "preferenceSection": "Preferences",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "Login": {
     "signInTitle": "Sign in",
@@ -233,7 +242,11 @@
     "referrals": "Referrals",
     "account": "Account",
     "security": "Security",
-    "activity": "Activity"
+    "activity": "Activity",
+    "group": {
+      "reading": "Reading",
+      "account": "Account"
+    }
   },
   "Dashboard": {
     "setupPending": "Account setup is pending",
@@ -975,6 +988,26 @@
       "show": "Show",
       "empty": "No jobs running.",
       "minimize": "Minimise"
+    },
+    "profileImport": {
+      "title": "Fill this in with the AI you already use",
+      "subtitle": "An AI you chat with often (ChatGPT, Gemini, Claude…) often knows your background and reading taste better than a blank form does. Send it the prompt below, then paste its whole answer back here.",
+      "step1": "Copy the prompt and send it to your usual AI",
+      "step2": "Copy its whole answer",
+      "step3": "Paste it below and press Import — the fields are filled in and saved for you",
+      "promptLabel": "Prompt (ready to copy)",
+      "copy": "Copy prompt",
+      "copied": "Copied",
+      "pasteLabel": "Paste the AI's answer",
+      "pastePlaceholder": "Paste the whole answer here, including the ### about_me headings…",
+      "importButton": "Import",
+      "importing": "Importing…",
+      "importedCount": "Imported and saved {count} fields.",
+      "nothingFound": "No recognizable fields found. Make sure you pasted the whole answer and kept headings like ### about_me.",
+      "saveFailed": "Parsed fine, but saving failed. Please try again.",
+      "prompt": "We have talked enough that you know me fairly well. Please fill in a \"reader profile\" for me. An AI book editor will use it to rewrite the books I read so they fit me better.\n\nRules:\n1. Only use what you actually know, or can reliably infer from our conversations. If you are unsure about a section, leave the whole section out. Do not invent anything, and avoid hedges like \"probably\" or \"may\".\n2. Address me in the second person (\"you\").\n3. Make every line specific and actionable: instead of \"likes brevity\", write \"leads with the conclusion, then explains the argument in two or three sentences\".\n4. No flattery, no pleasantries.\n\nOutput format (follow exactly):\n- Output only the sections below: no preamble, no closing, no explanations, no code fences.\n- Copy each heading exactly as written, including the English and the ###. Do not translate it. Put each heading on its own line.\n- In list sections, write one item per line, start each line with \"- \", and keep each item under 25 words.\n- If a section has nothing, omit the whole section; do not keep an empty heading.\n\n### about_me\n(100–250 words on my background, work, level of expertise, and roughly how much time I have for reading each day)\n\n### reading_goal\n(What I usually want from a non-fiction book, 1–3 sentences)\n\n### preferred_style\n(How I like ideas expressed, 3–8 items. Example: lead with the conclusion, then the argument)\n\n### disliked_style\n(What I dislike in writing, 3–8 items. Example: stacking jargon, empty inspiration)\n\n### known_topics\n(Fields or topics I already know well, 3–8 items)\n\n### weak_topics\n(Fields or topics I need explained patiently, 3–8 items)\n\n### explanation_preferences\n(How I want things explained, 3–8 items. Example: everyday analogies, concrete examples)\n\n### language_preferences\n(My language and wording preferences, 1–5 items. Example: plain language, few loanwords)\n\n### custom_instructions\n(Anything else the editor should remember, 1–3 items)",
+      "expandPrompt": "Show the full prompt",
+      "collapsePrompt": "Collapse the prompt"
     }
   },
   "Landing": {

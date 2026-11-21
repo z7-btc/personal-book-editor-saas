@@ -12,7 +12,16 @@
     "light": "Hell",
     "dark": "Dunkel",
     "system": "System",
-    "referrals": "Empfehlungen"
+    "referrals": "Empfehlungen",
+    "library": "Bibliothek",
+    "help": "Hilfe",
+    "account": "Konto",
+    "preferences": "Einstellungen",
+    "navSection": "Navigation",
+    "accountSection": "Konto",
+    "preferenceSection": "Einstellungen",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen"
   },
   "Login": {
     "signInTitle": "Anmelden",
@@ -233,7 +242,11 @@
     "referrals": "Empfehlungen",
     "account": "Konto",
     "security": "Sicherheit",
-    "activity": "Aktivität"
+    "activity": "Aktivität",
+    "group": {
+      "reading": "Lesen",
+      "account": "Konto"
+    }
   },
   "Dashboard": {
     "setupPending": "Die Kontoeinrichtung steht noch aus",
@@ -975,6 +988,26 @@
       "show": "Ausklappen",
       "empty": "Keine laufenden Aufträge.",
       "minimize": "Einklappen"
+    },
+    "profileImport": {
+      "title": "Mit der KI ausfüllen, die du ohnehin nutzt",
+      "subtitle": "Eine KI, mit der du oft sprichst (ChatGPT, Gemini, Claude …), kennt deinen Hintergrund und deinen Lesegeschmack oft besser als ein leeres Formular. Schick ihr den Prompt unten und füge ihre ganze Antwort hier wieder ein.",
+      "step1": "Prompt kopieren und an deine gewohnte KI senden",
+      "step2": "Die ganze Antwort kopieren",
+      "step3": "Unten einfügen und „Importieren“ drücken — die Felder werden gefüllt und gespeichert",
+      "promptLabel": "Prompt (fertig zum Kopieren)",
+      "copy": "Prompt kopieren",
+      "copied": "Kopiert",
+      "pasteLabel": "Antwort der KI einfügen",
+      "pastePlaceholder": "Die ganze Antwort hier einfügen, inklusive der Überschriften wie ### about_me …",
+      "importButton": "Importieren",
+      "importing": "Wird importiert …",
+      "importedCount": "{count} Felder importiert und gespeichert.",
+      "nothingFound": "Keine erkennbaren Felder gefunden. Prüfe, ob du die ganze Antwort eingefügt hast und Überschriften wie ### about_me erhalten sind.",
+      "saveFailed": "Gelesen, aber Speichern fehlgeschlagen. Bitte noch einmal versuchen.",
+      "prompt": "Wir haben viel miteinander gesprochen, du kennst mich also ziemlich gut. Bitte fülle mein „Leserprofil“ aus. Ein KI-Bucheditor verwendet es, um die Bücher, die ich lese, so umzuschreiben, dass sie zu mir passen.\n\nRegeln:\n1. Schreibe nur, was du wirklich weißt oder aus unseren Gesprächen zuverlässig schließen kannst. Wenn du bei einem Abschnitt unsicher bist, lass ihn ganz weg. Nichts erfinden, keine Formulierungen wie „wahrscheinlich“ oder „vielleicht“.\n2. Sprich mich in der zweiten Person an („du …“).\n3. Jede Zeile konkret und umsetzbar: Statt „mag Kürze“ lieber „nennt zuerst das Ergebnis und erklärt dann in zwei, drei Sätzen die Begründung“.\n4. Keine Komplimente, keine Floskeln.\n\nAusgabeformat (genau einhalten):\n- Gib nur die Abschnitte unten aus: keine Einleitung, keinen Schluss, keine Erklärungen, keine Codeblöcke.\n- Übernimm jede Überschrift genau wie geschrieben, einschließlich Englisch und ###. Nicht übersetzen. Eine Überschrift pro Zeile.\n- In Listenabschnitten ein Punkt pro Zeile, jede Zeile mit „- “ beginnen, höchstens 30 Wörter pro Punkt.\n- Abschnitte ohne Inhalt ganz weglassen, keine leeren Überschriften stehen lassen.\n\n### about_me\n(100–250 Wörter zu meinem Hintergrund, Beruf, Wissensstand und wie viel Zeit ich täglich zum Lesen habe)\n\n### reading_goal\n(Was ich von einem Sachbuch meistens will, 1–3 Sätze)\n\n### preferred_style\n(Wie ich Aussagen gern formuliert habe, 3–8 Punkte. Beispiel: erst das Fazit, dann die Begründung)\n\n### disliked_style\n(Was ich am Schreiben nicht mag, 3–8 Punkte. Beispiel: Fachjargon häufen, leere Motivationssprüche)\n\n### known_topics\n(Bereiche oder Themen, die ich schon gut kenne, 3–8 Punkte)\n\n### weak_topics\n(Bereiche oder Themen, die mir geduldig erklärt werden müssen, 3–8 Punkte)\n\n### explanation_preferences\n(Wie ich Dinge erklärt haben möchte, 3–8 Punkte. Beispiel: Alltagsvergleiche, konkrete Beispiele)\n\n### language_preferences\n(Meine Vorlieben bei Sprache und Wortwahl, 1–5 Punkte. Beispiel: Deutsch, wenige englische Fachbegriffe)\n\n### custom_instructions\n(Was der Editor sonst noch beachten soll, 1–3 Punkte)",
+      "expandPrompt": "Ganzes Prompt anzeigen",
+      "collapsePrompt": "Prompt einklappen"
     }
   },
   "Landing": {
