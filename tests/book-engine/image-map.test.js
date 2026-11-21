@@ -175,6 +175,13 @@ test('resolveZipPath：相对路径 / 上级目录 / 外链 / data URL', () => {
   assert.equal(resolveZipPath('./pic/a.gif', 'ch1.xhtml'), 'pic/a.gif');
   assert.equal(resolveZipPath('https://example.com/a.jpg', 'OEBPS/text/ch1.xhtml'), '');
   assert.equal(resolveZipPath('data:image/png;base64,AAA', 'OEBPS/text/ch1.xhtml'), '');
+  // 和 epub-reader 的 resolveZipPath 用同一套规则：URL 解码 + 以 / 开头的绝对路径
+  assert.equal(
+    resolveZipPath('../images/img%20one.jpg', 'OEBPS/text/ch1.xhtml'),
+    'OEBPS/images/img one.jpg',
+  );
+  assert.equal(resolveZipPath('/images/a.jpg', 'OEBPS/text/ch1.xhtml'), 'images/a.jpg');
+  assert.equal(resolveZipPath('', 'OEBPS/text/ch1.xhtml'), '');
 });
 
 test('mergeImageNotes：按 zipPath 把外部说明合并回章节图片', () => {

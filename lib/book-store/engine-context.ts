@@ -56,6 +56,12 @@ export type RewriteContext = {
   reviewProvider: ProviderLike | null;
   /** 图片理解用的 Provider；关掉图片理解或没单独指定时，就是主 Provider */
   imageProvider: ProviderLike | null;
+  /**
+   * 明确指定了图片 Provider、但它不存在或配置无效时的原因。
+   * 这种情况不能退回主 Provider：用户就是想把图发给那个模型的。
+   * 调用方应只用图注兜底并写日志。
+   */
+  imageProviderIssue: string | null;
   settings: SettingsLike;
   profile: ProfileLike;
   projectRoot: string;
@@ -101,13 +107,31 @@ export async function getRewriteContext(bookId?: string | null): Promise<Rewrite
    * 图片理解用的 Provider。
    * 单独指定的必须是能用的 Provider，配错了就退回「只用图注」，
    * 不能因为视觉通道配坏而让整本书改写失败。
+   *
+   * 「没配置」和「配了但无效」必须分开：
+   *  - 没配置（settings.images.providerId 为空）：用主 Provider，行为不变；
+   *  - 配了但找不到 / 校验不过：imageProvider 置 null，同时记下原因。
+   *    调用方不能拿主 Provider 顶替 —— 那等于把图片发给了用户没指定的模型。
    */
   let imageProvider: ProviderLike | null = null;
+  let imageProviderIssue: string | null = null;
   if (settings.images?.describe !== false) {
-    imageProvider = settings.images?.providerId
-      ? ((await getProvider(root, settings.images.providerId)) as ProviderLike | null)
-      : provider;
-    if (imageProvider && (validateProvider(imageProvider) as string[]).length) imageProvider = null;
+    if (settings.images?.providerId) {
+      const wanted = String(settings.images.providerId);
+      const found = (await getProvider(root, wanted)) as ProviderLike | null;
+      if (!found) {
+        imageProviderIssue = `找不到 ID 为 ${wanted} 的 Provider`;
+      } else {
+        const errors = validateProvider(found) as string[];
+        if (errors.length) {
+          imageProviderIssue = `Provider「${found.name || wanted}」不可用：${errors.join('；')}`;
+        } else {
+          imageProvider = found;
+        }
+      }
+    } else {
+      imageProvider = provider;
+    }
   }
 
   let bookContext: RewriteContext['bookContext'] = null;
@@ -127,7 +151,7 @@ export async function getRewriteContext(bookId?: string | null): Promise<Rewrite
     }
   }
 
-  return { provider, reviewProvider, imageProvider, settings, profile, projectRoot: promptRoot, bookContext };
+  return { provider, reviewProvider, imageProvider, imageProviderIssue, settings, profile, projectRoot: promptRoot, bookContext };
 }
 
 /** 只取 Provider（Provider 设置页的连通性测试等轻量场景用）。 */
