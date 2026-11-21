@@ -89,7 +89,12 @@ export default function ProfileImportCard({ labels, onImport }: {
           {copied ? t('copied') : t('copy')}
         </button>
       </div>
-      <pre className={`mt-2 overflow-auto whitespace-pre-wrap rounded-lg border border-emerald-200 bg-white p-3 font-sans text-xs leading-relaxed text-gray-700 select-all dark:border-emerald-900 dark:bg-gray-950 dark:text-gray-300 ${promptExpanded ? '' : 'max-h-56'}`}>{prompt}</pre>
+      {/* 折叠时是可滚动区域，必须能聚焦，否则键盘用户滚不到后面的提示词。 */}
+      <pre
+        tabIndex={0}
+        aria-label={t('promptLabel')}
+        className={`mt-2 overflow-auto whitespace-pre-wrap rounded-lg border border-emerald-200 bg-white p-3 font-sans text-xs leading-relaxed text-gray-700 select-all dark:border-emerald-900 dark:bg-gray-950 dark:text-gray-300 ${promptExpanded ? '' : 'max-h-56'}`}
+      >{prompt}</pre>
       <button
         type="button"
         onClick={() => setPromptExpanded((open) => !open)}

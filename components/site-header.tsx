@@ -75,7 +75,9 @@ export default function SiteHeader() {
 
   return <header className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
     <nav className="mx-auto flex max-w-7xl items-center gap-2 px-5 py-3">
-      <Link href="/" className="mr-2 shrink-0 text-lg font-semibold tracking-tight transition-opacity duration-200 hover:opacity-70 motion-reduce:transition-none">
+      {/* 窄屏下品牌名让位给右侧按钮：`min-w-0 truncate` 兜底，长语言（德语、
+          法语）也不会把登录按钮和汉堡挤出屏幕。 */}
+      <Link href="/" className="mr-2 min-w-0 truncate text-base font-semibold tracking-tight transition-opacity duration-200 hover:opacity-70 sm:text-lg motion-reduce:transition-none">
         {t('brand')}
       </Link>
 
@@ -92,7 +94,7 @@ export default function SiteHeader() {
         <HelpMenu label={t('help')} faqLabel={t('faq')} followLabel={t('followX')} />
       </div>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex shrink-0 items-center gap-2">
         {isPending ? null : session?.user ? (
           <AccountMenu
             name={session.user.name || session.user.email || ''}
@@ -100,9 +102,15 @@ export default function SiteHeader() {
             onSignOut={() => void signOut()}
           />
         ) : (
-          <Link href="/sign-in" className="inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-4 py-2 text-sm text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-900/20 active:translate-y-0 active:shadow-sm motion-reduce:transition-none motion-reduce:hover:translate-y-0 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200 dark:hover:shadow-black/30">
+          <Link
+            href="/sign-in"
+            aria-label={t('signIn')}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-2 text-sm whitespace-nowrap text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-900/20 active:translate-y-0 active:shadow-sm sm:px-4 motion-reduce:transition-none motion-reduce:hover:translate-y-0 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200 dark:hover:shadow-black/30"
+          >
             <LogIn aria-hidden="true" className="h-4 w-4" />
-            {t('signIn')}
+            {/* 手机上只留图标：德语「Anmelden」、法语「Se connecter」放不下，
+                会换行或把整条顶栏撑出屏幕；完整文字在汉堡菜单的账户区里。 */}
+            <span className="hidden sm:inline">{t('signIn')}</span>
           </Link>
         )}
         <div className="hidden md:block">
