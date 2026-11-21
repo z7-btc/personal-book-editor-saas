@@ -625,7 +625,7 @@
   "Books": {
     "nav": {
       "library": "ライブラリ",
-      "settings": "エディタ設定",
+      "settings": "AIモデル設定",
       "profile": "読者プロフィール",
       "prompts": "プロンプト"
     },
@@ -847,7 +847,7 @@
       }
     },
     "settings": {
-      "title": "エディタ設定",
+      "title": "AIモデル設定",
       "subtitle": "書籍エディタのモデルサービス、コストの目安、品質しきい値をまとめて設定します。",
       "savedToast": "設定を保存しました。",
       "providers": {

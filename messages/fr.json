@@ -625,7 +625,7 @@
   "Books": {
     "nav": {
       "library": "Bibliothèque",
-      "settings": "Réglages de l'éditeur",
+      "settings": "Réglages du modèle d'IA",
       "profile": "Profil de lecture",
       "prompts": "Modèles de prompt"
     },
@@ -847,7 +847,7 @@
       }
     },
     "settings": {
-      "title": "Réglages de l'éditeur",
+      "title": "Réglages du modèle d'IA",
       "subtitle": "Fournisseurs de modèles, rythme de dépense et seuils de qualité de l'éditeur de livres.",
       "savedToast": "Réglages enregistrés.",
       "providers": {
