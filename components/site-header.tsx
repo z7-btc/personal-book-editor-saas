@@ -159,8 +159,8 @@ export default function SiteHeader() {
 }
 
 function HelpMenu({ label, faqLabel, followLabel }: { label: string; faqLabel: string; followLabel: string }) {
-  const { open, setOpen, hoverHandlers } = useHoverMenu();
-  return <DropdownMenu open={open} onOpenChange={setOpen}>
+  const { open, onOpenChange, hoverHandlers } = useHoverMenu();
+  return <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
     <DropdownMenuTrigger
       {...hoverHandlers}
       className="group inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-950 focus-visible:outline-2 focus-visible:outline-offset-2 data-[state=open]:bg-gray-100 data-[state=open]:text-gray-950 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-white"
@@ -184,9 +184,9 @@ function AccountMenu({ name, labels, onSignOut }: {
   labels: { account: string; workspace: string; referrals: string; signOut: string };
   onSignOut: () => void;
 }) {
-  const { open, setOpen, hoverHandlers } = useHoverMenu();
+  const { open, onOpenChange, hoverHandlers } = useHoverMenu();
   const initial = name.trim().slice(0, 1).toUpperCase() || '?';
-  return <DropdownMenu open={open} onOpenChange={setOpen}>
+  return <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
     <DropdownMenuTrigger
       {...hoverHandlers}
       aria-label={labels.account}
@@ -217,14 +217,14 @@ function PreferencesMenu({ labels }: {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
-  const { open, setOpen, hoverHandlers } = useHoverMenu();
+  const { open, onOpenChange, close, hoverHandlers } = useHoverMenu();
   const theme = useThemeChoice();
 
   function chooseTheme(choice: ThemeChoice) {
     applyThemeChoice(choice);
   }
 
-  return <DropdownMenu open={open} onOpenChange={setOpen}>
+  return <DropdownMenu open={open} onOpenChange={onOpenChange} modal={false}>
     <DropdownMenuTrigger
       {...hoverHandlers}
       aria-label={labels.preferences}
@@ -241,7 +241,7 @@ function PreferencesMenu({ labels }: {
           key={option.value}
           onSelect={() => {
             router.replace(`${pathname}${window.location.search}${window.location.hash}`, { locale: option.value });
-            setOpen(false);
+            close();
           }}
           className="cursor-pointer rounded-md px-2.5 py-2 text-sm focus:bg-gray-100 data-[highlighted]:bg-gray-100 dark:focus:bg-gray-800 dark:data-[highlighted]:bg-gray-800"
         >
