@@ -149,6 +149,31 @@ test('原书名里本来就有的编号，起名时保留', () => {
     '',
     '原书名是第二部分，名字不能写成第三部分',
   );
+  assert.equal(
+    sanitizeGeneratedName('第2部分 固定价值投资：债券与优先股的选择原则', entry),
+    '第2部分 固定价值投资：债券与优先股的选择原则',
+    '「第2部分」和「第二部分」是同一个位置，不能因为写法不同就误拒',
+  );
+  assert.equal(
+    sanitizeGeneratedName('正文第2章 起点：安全边际的定义', {
+      index: 1,
+      title: '第一章 起点',
+      chars: 3000,
+      card: { summary: '讲安全边际。', knowledgePoints: ['定义'] },
+    }),
+    '',
+    '原书名是第一章，写成「正文第2章」必须拒绝',
+  );
+  assert.equal(
+    sanitizeGeneratedName('正文第一章 起点：安全边际的定义', {
+      index: 1,
+      title: '第一章 起点',
+      chars: 3000,
+      card: { summary: '讲安全边际。', knowledgePoints: ['定义'] },
+    }),
+    '正文第一章 起点：安全边际的定义',
+    '「正文第一章」和原书名「第一章」是同一个位置，不该被误拒',
+  );
 });
 
 test('★ 旧方案里已经存下的坏名字，读的时候也要洗掉', () => {
@@ -194,7 +219,7 @@ test('★ 阅读路径页不印假条目，也不印短页的假摘要', () => {
         value: 'filler',
         strategy: 'skip',
         displayTitle: '整页图片：无正文内容',
-        card: {},
+        card: { summary: '这一页概括了上册的全部精华。', knowledgePoints: ['价值投资'] },
       },
     ],
   };
@@ -203,8 +228,11 @@ test('★ 阅读路径页不印假条目，也不印短页的假摘要', () => {
   assert.ok(!html.includes('无正文内容'), '读者不该看到页面状态当标题');
   assert.ok(!html.includes('正文第二章'), '读者不该看到凭空安上的编号');
   assert.ok(!html.includes('本章系统区分了市场分析'), '短页不该印模型编的摘要');
+  assert.ok(!html.includes('这一页概括了上册的全部精华'), '零字页面配的假摘要也不能印');
+  assert.ok(!html.includes('价值投资'), '零字页面编的知识点不能印');
   assert.ok(html.includes('现在已然衰朽者，将来可能重放异彩'), '应显示真实原名');
   assert.ok(html.includes('证券分析（上）'), '封面应显示原书名');
+  assert.equal((html.match(/短页/g) || []).length, 2, '两条短页都该标「短页」，不再是「核心」');
 });
 
 test('★ 汇总阶段不能把短页改成精读或提要', () => {

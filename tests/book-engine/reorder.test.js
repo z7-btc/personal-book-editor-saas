@@ -182,6 +182,53 @@ test('★ 分层目录：卷标下面的章节也要跟着重排，不能只排�
   assert.deepEqual(plays, plays.map((_, i) => i + 1), `playOrder 应按新顺序连续，实际 ${plays.join(',')}`);
 });
 
+test('★ EPUB3 nav：卷标 `<ol>` 里的子条目也要逐层重排', () => {
+  /**
+   * EPUB3 的结构是 `li > a + ol > li`，子条目在 `<ol>` 里面，
+   * 不是 `<li>` 的直接子节点。第一版递归只找直接子节点，
+   * 于是 nav 永远只排最外层 —— NCX 那本书修好了，EPUB3 的书没修。
+   */
+  const base = readEpub(makeFixtureEpub());
+  const NAV = `<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="zh-CN">
+<head><title>目录</title></head>
+<body>
+  <nav epub:type="toc" id="toc">
+    <h1>目录</h1>
+    <ol>
+      <li><a href="text/chapter1.xhtml">上册</a>
+        <ol>
+          <li><a href="text/chapter2.xhtml">第二章 深入</a></li>
+          <li><a href="text/chapter3.xhtml">第三章 表格与代码</a></li>
+          <li><a href="text/chapter1.xhtml">第一章 起点</a></li>
+        </ol>
+      </li>
+      <li><a href="text/endnotes.xhtml">注释</a></li>
+    </ol>
+  </nav>
+</body>
+</html>
+`;
+  const book = readEpub(
+    repackEpub(base, { replacements: new Map([['OEBPS/nav.xhtml', NAV]]) }).buffer,
+  );
+  const wanted = [
+    'OEBPS/text/chapter3.xhtml',
+    'OEBPS/text/chapter1.xhtml',
+    'OEBPS/text/chapter2.xhtml',
+    'OEBPS/text/endnotes.xhtml',
+  ];
+  const { updates, issues } = reorderToc(book, wanted);
+  assert.deepEqual(issues, [], `不该有跳过：${issues.join('；')}`);
+
+  const nav = new ZipReader(repackEpub(book, { replacements: updates }).buffer).readText('OEBPS/nav.xhtml');
+  const volume = /上册[\s\S]*?<ol>([\s\S]*?)<\/ol>/.exec(nav);
+  assert.ok(volume, `nav 里应保留上册的嵌套 <ol>：${nav}`);
+  const order = [...volume[1].matchAll(/text\/(chapter\d+)\.xhtml/g)].map((m) => m[1]);
+  assert.deepEqual(order, ['chapter3', 'chapter1', 'chapter2'], `卷内顺序应跟着名次，实际 ${order.join(' → ')}`);
+  assert.equal((nav.match(/<li>/g) || []).length, 5, '条目一个都不能少');
+});
+
 test('目录里认不出的条目不会被丢掉，只是排到最后', () => {
   const book = readEpub(makeFixtureEpub());
   // 只声明一部分文件顺序，其余应保持原相对次序排在最后
