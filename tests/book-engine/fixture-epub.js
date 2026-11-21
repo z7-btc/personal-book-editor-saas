@@ -236,6 +236,98 @@ export function makeFootnoteFixtureEpub() {
   ]);
 }
 
+/**
+ * 造一本「图片密集」的样书，用来测图片说明与图注保留。
+ *
+ * 结构照着真实书（《证券分析》第 6 版）里那几种反复出现的写法：
+ *  - `<div class="table_img"><p class="biaoti">表6-1 …</p><img/></div>`（表扫描图，图注在上）
+ *  - `<div class="chatu_img"><img/><p class="tuti">图0-1 …</p></div>`（插图，图注在下）
+ *  - `<div class="equation_img"><img/></div>`（整页公式图，没有任何文字）
+ *  - 正文段落里「见表6-1」「如图0-1」这类指代
+ *  - 正文中夹着的行内图片（占位符必须留在原句里）
+ *
+ * @returns {Buffer}
+ */
+export function makeImageFixtureEpub() {
+  const CHAPTER = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN">
+<head><title>第六章 图片与表格</title><link rel="stylesheet" type="text/css" href="../styles/main.css"/></head>
+<body>
+  <section epub:type="chapter" id="ch6">
+    <h1 id="h-6">第六章 图片与表格</h1>
+    <p id="p1">下面这张表列出了 1927 年至 1932 年的收益率，详细数据见表6-1。</p>
+    <div class="table_img">
+      <p class="biaoti">表6-1 各年收益率（1927—1932）</p>
+      <img src="../images/table61.jpg" alt="表6-1"/>
+    </div>
+    <p id="p2">从表中可以看出，1931 年的亏损最大，如图0-1 所示。</p>
+    <div class="chatu_img">
+      <img src="../images/chart01.jpg" alt="图0-1"/>
+      <p class="tuti">图0-1 1927—1932 年收益率走势</p>
+    </div>
+    <p id="p3">计算年化收益率时使用下面的公式：</p>
+    <div class="equation_img"><img src="../images/eq01.png" alt=""/></div>
+    <p id="p4">这一段在公式之后，讲的是另一件事：安全边际才是投资的核心。</p>
+    <p id="p5">如图0-2 所示，曲线在 1931 年触底<img src="../images/inline02.jpg" alt="图0-2"/>，随后缓慢回升。</p>
+  </section>
+</body>
+</html>
+`;
+  const NAV = `<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="zh-CN">
+<head><title>目录</title></head>
+<body><nav epub:type="toc" id="toc"><h1>目录</h1><ol>
+  <li><a href="text/chapter1.xhtml">第六章 图片与表格</a></li>
+</ol></nav></body>
+</html>
+`;
+  const NCX = `<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head><meta name="dtb:uid" content="urn:uuid:image-fixture"/></head>
+  <docTitle><text>图片样书</text></docTitle>
+  <navMap><navPoint id="np1" playOrder="1"><navLabel><text>第六章 图片与表格</text></navLabel><content src="text/chapter1.xhtml"/></navPoint></navMap>
+</ncx>
+`;
+  const OPF = `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pub-id" xml:lang="zh-CN">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="pub-id">urn:uuid:image-fixture</dc:identifier>
+    <dc:title>图片样书</dc:title>
+    <dc:creator>测试作者</dc:creator>
+    <dc:language>zh-CN</dc:language>
+    <meta property="dcterms:modified">2024-05-01T00:00:00Z</meta>
+  </metadata>
+  <manifest>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+    <item id="css" href="styles/main.css" media-type="text/css"/>
+    <item id="img-table" href="images/table61.jpg" media-type="image/jpeg"/>
+    <item id="img-chart" href="images/chart01.jpg" media-type="image/jpeg"/>
+    <item id="img-eq" href="images/eq01.png" media-type="image/png"/>
+    <item id="img-inline" href="images/inline02.jpg" media-type="image/jpeg"/>
+    <item id="ch1" href="text/chapter1.xhtml" media-type="application/xhtml+xml"/>
+  </manifest>
+  <spine toc="ncx"><itemref idref="ch1"/></spine>
+</package>
+`;
+  /** 假 JPEG：不识图，只当作字节送进 data URL；刻意做 2KB 左右，方便测 maxBytes。 */
+  const fakeJpeg = (tag) => Buffer.from(`FFD8FFE0-fake-jpeg-${tag}-${'0'.repeat(2048)}`, 'utf8');
+
+  return writeEpubZip([
+    { name: 'META-INF/container.xml', data: CONTAINER_XML },
+    { name: 'OEBPS/content.opf', data: OPF },
+    { name: 'OEBPS/nav.xhtml', data: NAV },
+    { name: 'OEBPS/toc.ncx', data: NCX },
+    { name: 'OEBPS/styles/main.css', data: CSS },
+    { name: 'OEBPS/images/table61.jpg', data: fakeJpeg('table61') },
+    { name: 'OEBPS/images/chart01.jpg', data: fakeJpeg('chart01') },
+    { name: 'OEBPS/images/eq01.png', data: PNG_1PX },
+    { name: 'OEBPS/images/inline02.jpg', data: fakeJpeg('inline02') },
+    { name: 'OEBPS/text/chapter1.xhtml', data: CHAPTER },
+  ]);
+}
+
 /** 一个最小的合法 PNG（1x1 透明）。 */const PNG_1PX = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
   'base64',

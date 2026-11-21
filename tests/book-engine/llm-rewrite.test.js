@@ -234,6 +234,7 @@ test('★ 回归：中断后继续会复用已完成的 chunk，不整章重跑'
     // ---- 第一次：跑到第 3 个 chunk 就中止 ----
     const controller = new AbortController();
     let saved = null;
+    let savedSignature = null;
     const aborted = await rewriteChapter({
       xhtml,
       provider,
@@ -243,12 +244,14 @@ test('★ 回归：中断后继续会复用已完成的 chunk，不整章重跑'
       signal: controller.signal,
       onChunkDone: async (info) => {
         saved = JSON.parse(JSON.stringify(info.chunkResults));
+        savedSignature = info.planSignature;
         if (info.chunkIndex === 2) controller.abort(new Error('模拟用户暂停'));
       },
     }).catch((err) => err);
 
     assert.ok(aborted instanceof AbortedError, `应当抛出 AbortedError，实际 ${aborted?.name}`);
     assert.ok(saved && Object.keys(saved).length >= 3, '已完成的 chunk 内容必须被保留下来');
+    assert.ok(savedSignature, '进度里必须带分块计划指纹，否则续跑无法判断边界');
 
     // ---- 第二次：带 resume 继续 ----
     const before = mock.calls;
@@ -259,6 +262,7 @@ test('★ 回归：中断后继续会复用已完成的 chunk，不整章重跑'
       settings,
       projectRoot: PROJECT_ROOT,
       resumeChunkResults: saved,
+      resumePlanSignature: savedSignature,
     });
     const newCalls = mock.calls - before;
 
@@ -271,6 +275,98 @@ test('★ 回归：中断后继续会复用已完成的 chunk，不整章重跑'
     assert.ok(newCalls < resumed.chunks.length, '总调用次数必须少于整章重跑');
     assert.equal(resumed.quality.verdict, 'ok', JSON.stringify(resumed.quality.issues));
     assert.ok(resumed.stats.applied > 0, '恢复后正文要被写回');
+  });
+});
+
+/**
+ * ★ P1 回归：旧版 chunkResults 遇到新分块计划（图片感知改写）不能按序号硬套。
+ *
+ * QA 的复现场景：base 版本跑完第 1 章，存下 9 块 1 个 chunk 的结果；
+ * 切到图片感知改写后，图注块被摘出可改写块，新计划只有 7 块。
+ * 旧代码只按 `chunk.index` 复用，图注文字被写进正文块 —— 4 处串段。
+ *
+ * 这里用「图注当普通段落」的旧版 XHTML 生成真实旧结果，
+ * 再用带 <figure> 的新版 XHTML 续跑，断言旧结果被丢弃、正文不串段。
+ */
+test('★ P1 回归：分块计划变了就丢弃旧 chunkResults，图注不会被写进正文', async () => {
+  await withMock(async ({ provider, mock }) => {
+    const settings = settingsWith({ processing: { explainPass: false } });
+    const para = (n) =>
+      `<p>第${n}段正文：${`这是第${n}段的内容，用来验证续跑时旧分块结果不会被错套到新分块上。`.repeat(4)}` +
+      `第${n}段的关键数字是 ${n}000。</p>`;
+    const caption = (n) => `图 ${n}：这是第${n}张图的图注，不能被写进正文`;
+    const fig = (n) =>
+      `<figure><img src="../images/f${n}.png" alt="图 ${n}"/><figcaption>${caption(n)}</figcaption></figure>`;
+
+    // 新版：图注块 / 整图块不参与改写（annotateBlocks 会把它们标成 preserve）
+    const newXhtml =
+      '<?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>串段测试</title></head><body>' +
+      `<h1>串段测试</h1>${para(1)}${para(2)}${fig(1)}${para(3)}${para(4)}${fig(2)}${para(5)}${para(6)}` +
+      '</body></html>';
+
+    // 旧版：没有图片识别，图注就是普通段落，会一起进 chunk（9 块 1 个 chunk）
+    const legacyXhtml =
+      '<?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>串段测试</title></head><body>' +
+      `<h1>串段测试</h1>${para(1)}${para(2)}<p>${caption(1)}</p>${para(3)}${para(4)}<p>${caption(2)}</p>${para(5)}${para(6)}` +
+      '</body></html>';
+
+    const legacy = await rewriteChapter({
+      xhtml: legacyXhtml,
+      provider,
+      profile: blankProfile(),
+      settings,
+      projectRoot: PROJECT_ROOT,
+    });
+    assert.equal(legacy.chunks.length, 1, '旧计划应当是 1 个 chunk');
+    assert.ok(legacy.planSignature, '改写结果必须带分块计划指纹');
+    assert.equal(legacy.resumeDiscarded, null, '首次改写没有旧结果可丢弃');
+
+    /* ---- 1) 指纹不一致：丢弃并整章重跑 ---- */
+    const before = mock.calls;
+    const chunkTotals = [];
+    const resumed = await rewriteChapter({
+      xhtml: newXhtml,
+      provider,
+      profile: blankProfile(),
+      settings,
+      projectRoot: PROJECT_ROOT,
+      chapterHref: 'OEBPS/text/ch1.xhtml',
+      resumeChunkResults: legacy.chunkResults,
+      resumePlanSignature: legacy.planSignature,
+      onChunkDone: (info) => chunkTotals.push(info.chunkTotal),
+    });
+
+    assert.notEqual(legacy.planSignature, resumed.planSignature, '图片过滤后分块计划指纹必须变化');
+    assert.equal(resumed.resumeDiscarded, 'plan-changed', '计划不一致时必须丢弃旧结果');
+    assert.equal(resumed.resumedChunks, 0, '一个旧 chunk 都不许复用');
+    assert.equal(mock.calls - before, resumed.chunks.length, '所有 chunk 都应重新调用模型');
+    assert.ok(chunkTotals.length > 0 && chunkTotals.every((n) => n === resumed.chunks.length));
+    assert.equal(resumed.quality.verdict, 'ok', JSON.stringify(resumed.quality.issues));
+
+    // 正文不串段：每个 <p> 都还是它自己那一段，图注只出现在 figcaption 里
+    const doc = parseXml(resumed.xhtml);
+    const paragraphs = doc.documentElement.descendants().filter((el) => el.name === 'p');
+    assert.ok(paragraphs.length >= 6, `正文段落数不对：${paragraphs.length}`);
+    for (const p of paragraphs) {
+      assert.match(p.textContent.trim(), /^第\d+段正文/, `正文段落被串成了：${p.textContent.slice(0, 40)}`);
+    }
+    const captions = doc.documentElement.descendants().filter((el) => el.name === 'figcaption').map((el) => el.textContent.trim());
+    assert.deepEqual(captions, [caption(1), caption(2)], '图注必须原样保留在 figcaption 里');
+
+    /* ---- 2) 旧版本状态没有指纹：同样不能复用 ---- */
+    const beforeLegacy = mock.calls;
+    const legacyResume = await rewriteChapter({
+      xhtml: newXhtml,
+      provider,
+      profile: blankProfile(),
+      settings,
+      projectRoot: PROJECT_ROOT,
+      chapterHref: 'OEBPS/text/ch1.xhtml',
+      resumeChunkResults: legacy.chunkResults,
+    });
+    assert.equal(legacyResume.resumeDiscarded, 'missing-signature', '没有指纹的旧状态必须丢弃');
+    assert.equal(legacyResume.resumedChunks, 0);
+    assert.equal(mock.calls - beforeLegacy, legacyResume.chunks.length);
   });
 });
 
