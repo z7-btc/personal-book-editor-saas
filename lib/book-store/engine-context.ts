@@ -39,6 +39,7 @@ type ProvidersFile = { activeId: string | null; providers: ProviderLike[] };
 
 export type SettingsLike = {
   review?: { enabled?: boolean; providerId?: string | null };
+  images?: { describe?: boolean; providerId?: string | null };
 } & Record<string, unknown>;
 
 export type ProfileLike = Record<string, unknown>;
@@ -53,6 +54,8 @@ export type BookMetadataLike = {
 export type RewriteContext = {
   provider: ProviderLike | null;
   reviewProvider: ProviderLike | null;
+  /** 图片理解用的 Provider；关掉图片理解或没单独指定时，就是主 Provider */
+  imageProvider: ProviderLike | null;
   settings: SettingsLike;
   profile: ProfileLike;
   projectRoot: string;
@@ -94,6 +97,19 @@ export async function getRewriteContext(bookId?: string | null): Promise<Rewrite
     if (reviewProvider && (validateProvider(reviewProvider) as string[]).length) reviewProvider = null;
   }
 
+  /**
+   * 图片理解用的 Provider。
+   * 单独指定的必须是能用的 Provider，配错了就退回「只用图注」，
+   * 不能因为视觉通道配坏而让整本书改写失败。
+   */
+  let imageProvider: ProviderLike | null = null;
+  if (settings.images?.describe !== false) {
+    imageProvider = settings.images?.providerId
+      ? ((await getProvider(root, settings.images.providerId)) as ProviderLike | null)
+      : provider;
+    if (imageProvider && (validateProvider(imageProvider) as string[]).length) imageProvider = null;
+  }
+
   let bookContext: RewriteContext['bookContext'] = null;
   if (bookId) {
     try {
@@ -111,7 +127,7 @@ export async function getRewriteContext(bookId?: string | null): Promise<Rewrite
     }
   }
 
-  return { provider, reviewProvider, settings, profile, projectRoot: promptRoot, bookContext };
+  return { provider, reviewProvider, imageProvider, settings, profile, projectRoot: promptRoot, bookContext };
 }
 
 /** 只取 Provider（Provider 设置页的连通性测试等轻量场景用）。 */
