@@ -133,8 +133,8 @@
     "autoRenewNotice": "Your Stripe subscription still renews on {date}. Time bought here is added after your current period ends, and Stripe keeps charging on schedule — each charge adds more time.",
     "autoRenewBillingLink": "Turn off auto-renew on the billing page",
     "autoRenewPlanSwitch": "Switching to this plan turns off your existing Stripe auto-renewal once this payment succeeds.",
-    "scopeTitle": "What the one-time price includes",
-    "scopeBody": "Paying $1 once buys permanent use of this tool: library, editing plans, chapter rewrites and exports, with no monthly fee. The model API is yours to configure, and its usage is billed by your provider, not by us."
+    "scopeTitle": "What $1 a month includes",
+    "scopeBody": "$1 a month gives you this tool: library, editing plans, chapter rewrites and exports are included. Paying with Stripe renews monthly and you can turn renewal off anytime on the billing page — you keep access until the month you paid for ends. Paying with Binance Pay, OKX or a manual transfer buys one month at a time and does not renew automatically. The model API is yours to configure, and its usage is billed by your provider, not by us."
   },
   "Faq": {
     "title": "FAQ",
@@ -142,7 +142,7 @@
     "signupQuestion": "Do I need an email code to sign up or sign in?",
     "signupAnswer": "Signing up needs one; signing in does not. Registration takes two steps: first your email and password, then the code sent to that inbox — only then does the account exist. In public deployments Cloudflare Turnstile also checks that a human is present; that check does not prove the email belongs to you.",
     "billingQuestion": "Can I pay now?",
-    "billingAnswer": "With Payment Center connected, the pricing page sells permanent use of the tool for a single $1 payment — not a monthly subscription. The purchase covers use of the tool only; model usage is billed by your own provider.",
+    "billingAnswer": "With Payment Center connected, the pricing page sells by the month: $1 a month. Paying with Stripe renews automatically, and you can turn renewal off anytime on the billing page. Binance Pay, OKX or a manual transfer buys one month at a time and does not renew. The payment covers the tool only; model usage is billed by your own provider.",
     "emailQuestion": "Will I get marketing email after signing up?",
     "emailAnswer": "No. Marketing is optional and only takes effect after the address is confirmed; syncing it also needs Email Center."
   },
@@ -613,7 +613,7 @@
     "homeTitle": "AI Personal Book Editor · One book in, a new book out",
     "homeDescription": "AI reads your whole EPUB, decides chapter by chapter whether to rewrite, digest, keep or drop, and exports a finished book with new names and a new order.",
     "pricingTitle": "Pricing · AI Personal Book Editor",
-    "pricingDescription": "Pay $1 once and use the tool permanently. You connect your own model API and pay the provider directly.",
+    "pricingDescription": "Use the tool for $1 a month. You connect your own model API and pay the provider directly.",
     "faqTitle": "FAQ · AI Personal Book Editor",
     "faqDescription": "How importing, chapter rewrites, model billing and data isolation work."
   },
@@ -1108,12 +1108,12 @@
     "faq3A": "No. Libraries are isolated per account — only you can open yours.",
     "faq4Q": "Do I need to install anything?",
     "faq4A": "No. It runs in your browser, and the exported EPUB works in any reader.",
-    "faq5Q": "How does the one-time price work, and what about model costs?",
-    "faq5A": "Two separate charges. This site charges $1 once for permanent use of the tool — there is no monthly subscription. Rewriting uses the model provider you configure in Settings (OpenAI-compatible); that provider bills you directly for usage, and the money never passes through this site.",
+    "faq5Q": "How do the monthly fee and model costs work?",
+    "faq5A": "Two separate charges. This site charges $1 a month: Stripe payments renew automatically, and you can turn renewal off anytime on the billing page, keeping access until the month you paid for ends; Binance Pay, OKX or a manual transfer buys one month at a time without auto-renewal. Rewriting uses the model provider you configure in Settings (OpenAI-compatible); that provider bills you directly for usage, and the money never passes through this site.",
     "faq6Q": "How long does one book take?",
     "faq6A": "The plan takes a few minutes. Rewriting depends on chapter count and model speed — you can stop and resume later.",
     "finalNote": "Start with a book you don't mind experimenting on. The original is never modified.",
-    "priceNote": "Pay $1 once and the tool is yours for good; your model provider bills usage separately.",
+    "priceNote": "$1 a month; Stripe payments renew automatically and can be turned off anytime, other methods buy one month at a time; your model provider bills usage separately.",
     "footerNav": "Footer navigation",
     "footerFeatures": "Features",
     "footerFaq": "FAQ",
