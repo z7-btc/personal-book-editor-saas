@@ -133,8 +133,8 @@
     "autoRenewNotice": "Votre abonnement Stripe se renouvelle le {date}. La durée achetée ici est ajoutée après la fin de votre période actuelle, et Stripe continue de facturer comme prévu — chaque prélèvement ajoute du temps.",
     "autoRenewBillingLink": "Désactiver le renouvellement automatique sur la page de facturation",
     "autoRenewPlanSwitch": "Passer à cette offre désactive votre renouvellement automatique Stripe existant dès que ce paiement réussit.",
-    "scopeTitle": "Ce que comprend l’abonnement à 1 USD par mois",
-    "scopeBody": "1 USD par mois abonne cet outil : bibliothèque, plans d’édition, réécriture chapitre par chapitre et exports, renouvelé chaque mois. Vous pouvez désactiver le renouvellement à tout moment sur la page de facturation et gardez l’accès jusqu’à la fin du mois payé. L’API du modèle est à configurer vous-même ; son usage est facturé par votre fournisseur, pas par nous."
+    "scopeTitle": "Ce que comprend l’offre à 1 USD par mois",
+    "scopeBody": "1 USD par mois vous donne accès à cet outil : bibliothèque, plans d’édition, réécriture chapitre par chapitre et exports inclus. Avec Stripe, le renouvellement est mensuel et automatique, et vous pouvez le désactiver à tout moment sur la page de facturation ; vous gardez l’accès jusqu’à la fin du mois payé. Avec Binance Pay, OKX ou un virement manuel, vous achetez un mois à la fois, sans renouvellement automatique. L’API du modèle est à configurer vous-même ; son usage est facturé par votre fournisseur, pas par nous."
   },
   "Faq": {
     "title": "Questions fréquentes",
@@ -142,7 +142,7 @@
     "signupQuestion": "Faut-il un code par e-mail pour s’inscrire ou se connecter ?",
     "signupAnswer": "Pour l’inscription oui, pour la connexion non. L’inscription se fait en deux temps : e-mail et mot de passe, puis le code reçu par e-mail ; le compte n’existe qu’après. En production, Cloudflare Turnstile vérifie en plus que vous êtes humain ; cela ne confirme pas la propriété de l’adresse.",
     "billingQuestion": "Peut-on payer maintenant ?",
-    "billingAnswer": "Une fois Payment Center connecté, la page tarifs vend un abonnement mensuel : 1 USD par mois, renouvelé automatiquement, résiliable à tout moment sur la page de facturation. L’abonnement ne couvre que l’usage de l’outil ; l’usage du modèle est facturé par votre propre fournisseur.",
+    "billingAnswer": "Une fois Payment Center connecté, la page tarifs vend au mois : 1 USD par mois. Avec Stripe, le renouvellement est automatique et peut être désactivé à tout moment sur la page de facturation ; avec Binance Pay, OKX ou un virement manuel, vous achetez un mois à la fois, sans renouvellement. Le paiement ne couvre que l’usage de l’outil ; l’usage du modèle est facturé par votre propre fournisseur.",
     "emailQuestion": "Vais-je recevoir des e-mails marketing après inscription ?",
     "emailAnswer": "Non. L’opt-in marketing est facultatif et ne prend effet qu’après confirmation de l’adresse e-mail."
   },
@@ -613,7 +613,7 @@
     "homeTitle": "AI Personal Book Editor · Un livre entre, un livre neuf sort",
     "homeDescription": "L’IA lit l’EPUB entier, décide chapitre par chapitre d’approfondir, synthétiser, conserver ou supprimer, puis exporte avec de nouveaux titres de chapitre et un nouvel ordre.",
     "pricingTitle": "Tarifs · AI Personal Book Editor",
-    "pricingDescription": "Abonnez-vous à l’outil pour 1 USD par mois. Connectez votre propre API de modèle et payez le fournisseur directement.",
+    "pricingDescription": "Utilisez l’outil pour 1 USD par mois. Connectez votre propre API de modèle et payez le fournisseur directement.",
     "faqTitle": "Questions fréquentes · AI Personal Book Editor",
     "faqDescription": "Import, réécriture par chapitre, coût du modèle et isolation des données."
   },
@@ -1108,12 +1108,12 @@
     "faq3A": "Non. La bibliothèque est isolée par compte ; vous seul y avez accès.",
     "faq4Q": "Faut-il installer un logiciel ?",
     "faq4A": "Non. Tout se passe dans le navigateur ; l’EPUB exporté s’ouvre dans n’importe quelle liseuse.",
-    "faq5Q": "Comment fonctionne l’abonnement, et qu’en est-il du coût du modèle ?",
-    "faq5A": "Deux factures distinctes. Ce site coûte 1 USD par mois, renouvelé automatiquement ; vous pouvez désactiver le renouvellement à tout moment sur la page de facturation et gardez l’accès jusqu’à la fin du mois payé. La réécriture utilise le fournisseur de modèle que vous configurez dans les réglages (compatible OpenAI) ; ce fournisseur vous facture l’usage directement, l’argent ne passe jamais par ce site.",
+    "faq5Q": "Comment fonctionnent le paiement mensuel et le coût du modèle ?",
+    "faq5A": "Deux factures distinctes. Ce site coûte 1 USD par mois : avec Stripe, le renouvellement est automatique et peut être désactivé à tout moment sur la page de facturation, en gardant l’accès jusqu’à la fin du mois payé ; avec Binance Pay, OKX ou un virement manuel, vous achetez un mois à la fois, sans renouvellement automatique. La réécriture utilise le fournisseur de modèle que vous configurez dans les réglages (compatible OpenAI) ; ce fournisseur vous facture l’usage directement, l’argent ne passe jamais par ce site.",
     "faq6Q": "Combien de temps pour un livre ?",
     "faq6A": "Le plan prend quelques minutes ; la réécriture dépend du nombre de chapitres et de la vitesse du modèle. On peut mettre en pause et reprendre plus tard.",
     "finalNote": "Essayez d’abord avec un livre sans importance : l’original n’est pas touché.",
-    "priceNote": "1 USD par mois, renouvellement résiliable à tout moment ; votre fournisseur de modèle facture l’usage à part.",
+    "priceNote": "1 USD par mois ; avec Stripe, renouvellement automatique désactivable à tout moment, les autres moyens achètent un mois à la fois ; votre fournisseur de modèle facture l’usage à part.",
     "footerNav": "Navigation de pied de page",
     "footerFeatures": "Fonctions",
     "footerFaq": "Questions fréquentes",

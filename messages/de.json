@@ -134,7 +134,7 @@
     "autoRenewBillingLink": "Automatische Verlängerung auf der Abrechnungsseite deaktivieren",
     "autoRenewPlanSwitch": "Beim Wechsel zu diesem Tarif wird Ihre bestehende automatische Stripe-Verlängerung deaktiviert, sobald diese Zahlung erfolgreich ist.",
     "scopeTitle": "Was 1 USD pro Monat umfasst",
-    "scopeBody": "1 USD pro Monat abonniert dieses Werkzeug: Bibliothek, Bearbeitungspläne, Kapitel-Umschreibungen und Exporte, monatlich verlängert. Die Verlängerung lässt sich jederzeit auf der Abrechnungsseite abschalten; der Zugang bleibt bis zum Ende des bezahlten Monats bestehen. Die Modell-API konfigurierst du selbst; ihre Nutzung rechnet dein Anbieter ab, nicht wir."
+    "scopeBody": "1 USD pro Monat gibt dir dieses Werkzeug: Bibliothek, Bearbeitungspläne, Kapitel-Umschreibungen und Exporte sind enthalten. Bei Zahlung mit Stripe verlängert sich das monatlich automatisch; die Verlängerung lässt sich jederzeit auf der Abrechnungsseite abschalten, der Zugang bleibt bis zum Ende des bezahlten Monats. Zahlung per Binance Pay, OKX oder Überweisung kauft jeweils einen Monat ohne automatische Verlängerung. Die Modell-API konfigurierst du selbst; ihre Nutzung rechnet dein Anbieter ab, nicht wir."
   },
   "Faq": {
     "title": "Häufige Fragen",
@@ -142,7 +142,7 @@
     "signupQuestion": "Brauche ich einen E-Mail-Code für Registrierung oder Anmeldung?",
     "signupAnswer": "Für die Registrierung ja, für die Anmeldung nicht. Die Registrierung läuft in zwei Schritten: erst E-Mail und Passwort, dann der Code aus der Mail – erst damit entsteht das Konto. In der öffentlichen Umgebung prüft Cloudflare Turnstile zusätzlich, dass ein Mensch handelt; das bestätigt nicht den Besitz der E-Mail-Adresse.",
     "billingQuestion": "Kann ich jetzt bezahlen?",
-    "billingAnswer": "Mit verbundenem Payment Center verkauft die Preisseite ein Monatsabo: 1 USD pro Monat, automatisch verlängert, jederzeit auf der Abrechnungsseite abschaltbar. Das Abo umfasst nur die Werkzeugnutzung; Modellnutzung rechnet dein eigener Anbieter ab.",
+    "billingAnswer": "Mit verbundenem Payment Center verkauft die Preisseite monatlich: 1 USD pro Monat. Bei Stripe verlängert sich das automatisch und lässt sich jederzeit auf der Abrechnungsseite abschalten; Binance Pay, OKX oder Überweisung kaufen jeweils einen Monat ohne Verlängerung. Die Zahlung umfasst nur die Werkzeugnutzung; Modellnutzung rechnet dein eigener Anbieter ab.",
     "emailQuestion": "Bekomme ich nach der Registrierung Werbemails?",
     "emailAnswer": "Nein. Marketing ist optional und wird erst nach bestätigter E-Mail-Adresse wirksam."
   },
@@ -613,7 +613,7 @@
     "homeTitle": "AI Personal Book Editor · Ein Buch hinein, ein neues Buch heraus",
     "homeDescription": "Die KI liest das ganze EPUB, entscheidet je Kapitel über vertiefen, verdichten, behalten oder weglassen und exportiert mit neuen Kapitelnamen und neuer Reihenfolge.",
     "pricingTitle": "Preise · AI Personal Book Editor",
-    "pricingDescription": "Das Werkzeug für 1 USD pro Monat abonnieren. Die Modell-API verbindest du selbst und zahlst direkt beim Anbieter.",
+    "pricingDescription": "Das Werkzeug für 1 USD pro Monat nutzen. Die Modell-API verbindest du selbst und zahlst direkt beim Anbieter.",
     "faqTitle": "Häufige Fragen · AI Personal Book Editor",
     "faqDescription": "Zu Import, Kapitel-Rewrite, Modellkosten und Datentrennung."
   },
@@ -1108,12 +1108,12 @@
     "faq3A": "Nein. Die Bibliothek ist pro Konto getrennt; nur du hast Zugriff.",
     "faq4Q": "Muss ich etwas installieren?",
     "faq4A": "Nein. Es läuft im Browser; das exportierte EPUB öffnet jeder Reader.",
-    "faq5Q": "Wie funktioniert das Abo und was kostet das Modell?",
-    "faq5A": "Zwei getrennte Rechnungen. Diese Seite kostet 1 USD pro Monat, automatisch verlängert; die Verlängerung lässt sich jederzeit auf der Abrechnungsseite abschalten, der Zugang bleibt bis zum Ende des bezahlten Monats. Das Umschreiben nutzt den Modellanbieter, den du in den Einstellungen selbst verbindest (OpenAI-kompatibel); dieser Anbieter rechnet die Nutzung direkt mit dir ab, das Geld läuft nie über diese Seite.",
+    "faq5Q": "Wie funktionieren Monatsgebühr und Modellkosten?",
+    "faq5A": "Zwei getrennte Rechnungen. Diese Seite kostet 1 USD pro Monat: Bei Stripe verlängert sich das automatisch, die Verlängerung lässt sich jederzeit auf der Abrechnungsseite abschalten, der Zugang bleibt bis zum Ende des bezahlten Monats; Binance Pay, OKX oder Überweisung kaufen jeweils einen Monat ohne automatische Verlängerung. Das Umschreiben nutzt den Modellanbieter, den du in den Einstellungen selbst verbindest (OpenAI-kompatibel); dieser Anbieter rechnet die Nutzung direkt mit dir ab, das Geld läuft nie über diese Seite.",
     "faq6Q": "Wie lange dauert ein Buch?",
     "faq6A": "Der Plan dauert Minuten; das Umschreiben hängt von Kapitelzahl und Modellgeschwindigkeit ab. Du kannst pausieren und später fortsetzen.",
     "finalNote": "Probier es zuerst mit einem unwichtigen Buch – das Original bleibt unangetastet.",
-    "priceNote": "1 USD pro Monat, Verlängerung jederzeit abschaltbar; Modellkosten rechnet dein Anbieter separat ab.",
+    "priceNote": "1 USD pro Monat; bei Stripe automatische Verlängerung, jederzeit abschaltbar, andere Zahlungswege kaufen jeweils einen Monat; Modellkosten rechnet dein Anbieter separat ab.",
     "footerNav": "Fußzeilen-Navigation",
     "footerFeatures": "Funktionen",
     "footerFaq": "Häufige Fragen",

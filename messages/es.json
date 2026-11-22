@@ -134,7 +134,7 @@
     "autoRenewBillingLink": "Desactivar la renovación automática en la página de facturación",
     "autoRenewPlanSwitch": "Cambiar a este plan desactiva tu renovación automática de Stripe existente cuando este pago se complete.",
     "scopeTitle": "Qué incluye 1 USD al mes",
-    "scopeBody": "1 USD al mes da acceso por suscripción a esta herramienta: biblioteca, planes de edición, reescritura por capítulos y exportaciones, con renovación mensual. Puedes desactivar la renovación cuando quieras en la página de facturación y el acceso se mantiene hasta que termine el mes pagado. La API del modelo la configuras tú; su uso lo factura tu proveedor, no nosotros."
+    "scopeBody": "1 USD al mes te da acceso a esta herramienta: biblioteca, planes de edición, reescritura por capítulos y exportaciones incluidos. Con Stripe la renovación es mensual y automática, y puedes desactivarla cuando quieras en la página de facturación; el acceso se mantiene hasta que termine el mes pagado. Con Binance Pay, OKX o transferencia manual compras un mes cada vez y no se renueva automáticamente. La API del modelo la configuras tú; su uso lo factura tu proveedor, no nosotros."
   },
   "Faq": {
     "title": "Preguntas frecuentes",
@@ -142,7 +142,7 @@
     "signupQuestion": "¿Hace falta un código de email para registrarse o entrar?",
     "signupAnswer": "Para registrarse sí; para entrar no. El registro tiene dos pasos: primero email y contraseña, luego el código enviado a ese buzón; hasta entonces no se crea la cuenta. En el entorno público, Cloudflare Turnstile verifica además que seas una persona; eso no confirma la titularidad del email.",
     "billingQuestion": "¿Se puede pagar ahora?",
-    "billingAnswer": "Con Payment Center conectado, la página de precios vende una suscripción mensual: 1 USD al mes, con renovación automática, y puedes desactivar la renovación cuando quieras en la página de facturación. La suscripción cubre solo el uso de la herramienta; el uso del modelo lo factura tu propio proveedor.",
+    "billingAnswer": "Con Payment Center conectado, la página de precios vende por meses: 1 USD al mes. Con Stripe la renovación es automática y puedes desactivarla cuando quieras en la página de facturación; con Binance Pay, OKX o transferencia manual compras un mes cada vez, sin renovación. El pago cubre solo el uso de la herramienta; el uso del modelo lo factura tu propio proveedor.",
     "emailQuestion": "¿Recibiré correos de marketing tras registrarme?",
     "emailAnswer": "No. La suscripción de marketing es opcional y solo surte efecto tras confirmar el email."
   },
@@ -613,7 +613,7 @@
     "homeTitle": "AI Personal Book Editor · Entra un libro, sale un libro nuevo",
     "homeDescription": "La IA lee el EPUB completo, decide por capítulo si profundizar, resumir, conservar o eliminar, y exporta con nombres de capítulo y orden nuevos.",
     "pricingTitle": "Precios · AI Personal Book Editor",
-    "pricingDescription": "Suscríbete a la herramienta por 1 USD al mes. Conecta tu propia API de modelo y paga directamente al proveedor.",
+    "pricingDescription": "Usa la herramienta por 1 USD al mes. Conecta tu propia API de modelo y paga directamente al proveedor.",
     "faqTitle": "Preguntas frecuentes · AI Personal Book Editor",
     "faqDescription": "Sobre importación, reescritura por capítulos, coste del modelo y aislamiento de datos."
   },
@@ -1108,12 +1108,12 @@
     "faq3A": "No. La biblioteca está aislada por cuenta; solo tú tienes acceso.",
     "faq4Q": "¿Hay que instalar algo?",
     "faq4A": "No. Funciona en el navegador; el EPUB exportado se abre en cualquier lector.",
-    "faq5Q": "¿Cómo funciona la suscripción y qué pasa con el coste del modelo?",
-    "faq5A": "Son dos cargos separados. Este sitio cobra 1 USD al mes, con renovación automática; puedes desactivar la renovación cuando quieras en la página de facturación y conservas el acceso hasta que termine el mes pagado. La reescritura usa el proveedor de modelo que configures en Ajustes (compatible con OpenAI); ese proveedor te factura el uso directamente y el dinero nunca pasa por este sitio.",
+    "faq5Q": "¿Cómo funcionan la cuota mensual y el coste del modelo?",
+    "faq5A": "Son dos cargos separados. Este sitio cobra 1 USD al mes: con Stripe la renovación es automática y puedes desactivarla cuando quieras en la página de facturación, conservando el acceso hasta que termine el mes pagado; con Binance Pay, OKX o transferencia manual compras un mes cada vez, sin renovación automática. La reescritura usa el proveedor de modelo que configures en Ajustes (compatible con OpenAI); ese proveedor te factura el uso directamente y el dinero nunca pasa por este sitio.",
     "faq6Q": "¿Cuánto tarda un libro?",
     "faq6A": "El plan tarda minutos; la reescritura depende del número de capítulos y de la velocidad del modelo. Puedes pausar y continuar después.",
     "finalNote": "Prueba primero con un libro que no te importe: el original no se toca.",
-    "priceNote": "1 USD al mes, cancela la renovación cuando quieras; tu proveedor de modelo factura el uso aparte.",
+    "priceNote": "1 USD al mes; con Stripe la renovación es automática y se puede desactivar cuando quieras, otros métodos compran un mes cada vez; tu proveedor de modelo factura el uso aparte.",
     "footerNav": "Navegación del pie",
     "footerFeatures": "Funciones",
     "footerFaq": "Preguntas frecuentes",
