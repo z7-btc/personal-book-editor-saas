@@ -100,7 +100,18 @@ export async function LandingPage() {
             url: `${siteOrigin()}/${locale}`,
             description: seo('homeDescription'),
             inLanguage: locale,
-            offers: { '@type': 'Offer', price: '1', priceCurrency: 'USD' },
+            offers: {
+              '@type': 'Offer',
+              price: '1',
+              priceCurrency: 'USD',
+              // 现在是按月订阅：结构化数据也要写明计费周期，别让搜索结果把月费读成一次性价格。
+              priceSpecification: {
+                '@type': 'UnitPriceSpecification',
+                price: '1',
+                priceCurrency: 'USD',
+                billingDuration: 'P1M',
+              },
+            },
           }).replace(/</g, '\\u003c'),
         }}
       />
