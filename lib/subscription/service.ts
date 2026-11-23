@@ -1,6 +1,6 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
-import { and, desc, eq, gt, lt, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, lt, lte, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { client, db } from '@/lib/db/drizzle';
 import {
@@ -60,6 +60,9 @@ export async function hasUnexpiredPaidPeriod(organizationId: string, now = new D
     .from(subscriptionGrants).where(and(
       eq(subscriptionGrants.organizationId, organizationId),
       eq(subscriptionGrants.status, 'active'),
+      // A period that starts in the future is a renewal, not current access:
+      // counting it would let next month's cycle be used this month.
+      lte(subscriptionGrants.periodStart, now),
       gt(subscriptionGrants.periodEnd, now),
     )).limit(1);
   return Boolean(grant);

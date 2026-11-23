@@ -140,6 +140,13 @@ describe('subscription gate', () => {
     expect(result.allowed).toBe(false);
   });
 
+  it('还没开始的付费周期不算数（续费不能提前用）', async () => {
+    const { user, organizationId } = await newSubscriber();
+    await seedPaidPeriod(organizationId, { startOffsetDays: 5, endOffsetDays: 35 });
+    const result = await access.resolveToolAccess(asSessionUser(user));
+    expect(result.allowed).toBe(false);
+  });
+
   it('被冲正的付费周期不算数', async () => {
     const { user, organizationId } = await newSubscriber();
     await seedPaidPeriod(organizationId, { startOffsetDays: -1, endOffsetDays: 29, status: 'reversed' });
