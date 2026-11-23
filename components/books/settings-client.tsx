@@ -680,7 +680,7 @@ export default function SettingsClient() {
             />
             <NumberField
               label={t('settings.advanced.maxQualityRetries')}
-              value={num(['quality', 'maxQualityRetries'], 1)}
+              value={num(['quality', 'maxQualityRetries'], 3)}
               onChange={(value) => patch(['quality', 'maxQualityRetries'], value)}
               min={0}
               max={5}
