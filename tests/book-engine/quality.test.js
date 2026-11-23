@@ -136,6 +136,16 @@ test('带小数点的真实数据不会被编号规则误扣', () => {
   assert.ok(keys.includes('12.5%'), keys.join(','));
 });
 
+test('顿号分隔的真实数字与带点的日期不会被误扣', () => {
+  const counted = extractNumberTokens('共 3、4 个人参加。');
+  const countedKeys = [...counted.keys()];
+  assert.ok(countedKeys.includes('3'), countedKeys.join(','));
+  assert.ok(countedKeys.includes('4'), countedKeys.join(','));
+
+  const dated = extractNumberTokens('2023.10.1 发布，2024 年修订。');
+  assert.ok([...dated.keys()].includes('2023'), [...dated.keys()].join(','));
+});
+
 test('列表编号之外的数字仍然要检查', () => {
   const tokens = extractNumberTokens('1.甲 2.乙。其中 3 个人，占 25%，另有 1.5 万元。');
   const keys = [...tokens.keys()];
