@@ -126,7 +126,8 @@ EMAIL_FROM="AI Personal Book Editor <noreply@your-domain>"
 | --- | --- |
 | `FEATURE_PAYMENT_CENTER` + `PAYMENT_CENTER_*` | 接外部 Payment Center 收款；该服务不在本仓库，不配置时定价页显示「未连接」，其余功能不受影响 |
 | `FEATURE_REFERRALS` / `FEATURE_REFERRAL_WITHDRAWALS` / `FEATURE_COMMISSION_BALANCE` | 邀请返佣与提现，依赖 Payment Center |
-| `FEATURE_EMAIL_CENTER` + `EMAIL_CENTER_*` | 联系人同步与退订管理 |
+| `FEATURE_EMAIL_CENTER` + `EMAIL_CENTER_URL` / `EMAIL_CENTER_API_KEY` | 联系人同步与退订管理（服务端） |
+| `FEATURE_EMAIL_CENTER_WIDGET` + `EMAIL_CENTER_URL` / `NEXT_PUBLIC_EMAIL_CENTER_WIDGET_KEY` | 页面上的订阅表单组件；浏览器只拿公开的 widget key，脚本地址仍由服务端按 `EMAIL_CENTER_URL` 拼 |
 | `CRON_SECRET` | 内部 cron 接口的 Bearer 令牌，`npm run setup` 自动生成 |
 | `INTEGRATION_ENCRYPTION_KEY_V1` | 提现收款账户的 AES-256-GCM 加密密钥 |
 
