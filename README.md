@@ -1,487 +1,223 @@
-# SaaS Framework
+# AI Personal Book Editor
 
-An in-progress multilingual SaaS framework based on the official `nextjs/saas-starter`
-commit recorded in [NOTICE.md](NOTICE.md). The interface ships in English, Simplified
-Chinese, Japanese, German, Spanish and French; the list lives in `i18n/routing.ts`.
+**一本书进去，AI 为你重编成新书。**
 
-## Product scope
+把一本无 DRM 的 EPUB 交给 AI：它先读完整本书，逐章判断哪些该按你的阅读画像重写、哪些该压成一页提要、哪些整章删掉，再逐章改写、重新命名和排序，最后导出成一本能直接读的新 EPUB。原书只读，所有改写都发生在副本上。
 
-Each user has a personal account and subscription. Invitations are referral links for
-commission attribution. There are no team invitations, member management or workspace
-switching. Organization/member storage is retained only as an internal personal
-billing identity; public organization APIs return 404. Billing routes derive the
-account from the signed-in user and ignore the session active-organization field.
+这是一个可以自己部署的完整产品，不是 SDK：自带账户体系、书库、改写流水线、EPUB 导出和六种语言的界面；计费、返佣和邮件集成按需开启，不配置也能完整使用核心功能。
 
-## Current development state
+> **English** — AI Personal Book Editor turns one EPUB into a better book. An LLM reads the whole book, decides chapter by chapter whether to rewrite, condense or drop each one for a given reader profile, then rewrites, renames and reorders the chapters and exports a new EPUB. It is a self-hosted Next.js 16 + PostgreSQL application with accounts, a per-user library, six UI languages and optional billing/email integrations. Full English summary at the [end](#english).
 
-The foundation runs on Next.js 16, React 19, Drizzle/PostgreSQL and Better Auth.
-Public home, pricing and FAQ pages have separate `/zh-CN` and `/en` routes, language-specific metadata,
-canonical and alternate links, truthful structured data, and a sitemap. The root
-route selects a language from the locale cookie, browser preference, then the
-Chinese default. Sign-in and dashboard pages use `noindex` metadata. The public
-header and authentication forms offer light, dark and system themes. The choice
-is stored in a first-party `theme` cookie (`lib/theme.ts`), so the server renders
-it onto `<html>` and the first paint is already correct; with no stored choice the
-`prefers-color-scheme` media query decides, and an explicit light choice still
-wins against a dark operating system. Nothing renders a script to apply it —
-React 19 never executes a script a component renders, and the `[locale]` layout is
-re-created on every language switch.
-Sign-in creates a Better Auth session from the email and password alone. Sign-up
-runs in two steps: it creates the (still unusable) account and mails a one-time
-code, and entering that code is what confirms the mailbox and mints a session —
-an abandoned sign-up leaves an address taken but no way in. A recoverable
-bootstrap creates one personal workspace. Cloudflare
-Turnstile protects registration and sign-in when enabled; public production
-requests fail closed if it is not configured. The old JWT/bcrypt login and direct
-Stripe API routes have been removed.
+---
 
-Registration and preference changes now create a versioned Email Center contact
-outbox entry in the same PostgreSQL transaction as the user change. The contact
-worker coalesces old pending versions, uses stable idempotency keys and retries
-temporary failures. Email retries now query the original native receipt
-before resending. A separate reconciliation runner detects unknown delivery,
-binding drift and authoritative unsubscribe without rewriting remote consent.
-CLI, protected Cron and the persistent loop share the same leased core; see
-[email-reconciliation.md](docs/email-reconciliation.md). The pricing page mounts
-the Payment Center's own checkout widget with the website-scoped key once
-configured, so the plan, interval and payment-method choices come from the
-centre instead of from a local form. Workspace billing accounts and server-side
-payment
-intents now retain an exact quote and stable order keys. A signed Payment Center
-callback is verified, durably recorded and fulfilled on the delivery itself —
-the subscription activates without running a command; a worker or
-`npm run payment:reconcile` is only the retry backstop for a delivery the app
-could not finish inline. A local reconciliation worker re-queries the event
-and order, then creates an idempotent, reversible workspace grant for a complete
-positive-amount Stripe invoice period. Payment Center has a local workspace
-billing-account order binding, migration, account-scoped subscription controls
-and versioned invoice-period evidence. Full Stripe invoice refunds now have a
-local period-specific reversal path; a final full lost dispute follows the same
-path. Manual approval and confirmed blockchain payments now have a local
-prepaid-period grant path. A workspace with an unexpired paid period cannot
-start another recurring checkout. Partial refunds and unresolved disputes need
-manual review. The account owner’s billing page can query and change automatic
-renewal only for a verified active Stripe grant. Its local HTTP smoke uses a
-mock Payment Center, so live Stripe control is still unverified. Commission
-balance spending has a local two-phase path; the full crash/concurrency matrix
-and user checkout acceptance remain incomplete. Zero-amount invoice policy is
-also incomplete. The checkout widget
-is embedded behind the disabled-by-default Payment Center switch. A dedicated
-local Email Center application now accepts real registration, locale and consent
-updates through the contact outbox. Its optional public-key Widget loads on the
-home page and was checked in Chinese, English and mobile browsers. Production
-Email Center binding, remaining public/legal pages,
-real referral withdrawal acceptance, live payment Inbox delivery and deployment are **still
-being developed**. Do not treat a successful build as completed production
-payment or email integration.
+## 它做什么
 
-A dedicated local Payment Center website is bound with a website-scoped
-catalog/order key and its own callback signing secret. On 2026-10-04 the whole
-chain was exercised against the running Flask Payment Center: the pricing page
-read a real catalog (two plans with monthly and yearly prices), a real manual
-order was created, it was approved through the same service the Payment Center
-admin button calls, the signed callback was delivered (HTTP 202), the Inbox
-worker granted the period, and the handshake then reported all three modules
-(`payment_pricing`, `referral`, `payment_callback`) as ready.
+1. **导入 EPUB** — 拖进书库。原文件只读，一个字节都不改。
+2. **生成整理方案** — AI 读完整本书，逐章给出价值判断和处理方式（重写 / 提要 / 删除 / 保留），并说明理由。
+3. **确认并改写** — 你可以逐章改判，然后开始改写；进度、评分和保留理由全程可见，中途可以停下，之后接着跑。
+4. **导出成品** — 一键导出新的 EPUB，书首自动带上「怎么读这本书」。目录、图片和图注按原书结构保留。
 
-The pricing surface was then rebuilt around the centre's remote script, the way
-the sibling AutoTrading application integrates it. Each plan card hosts one
-`window.PaymentCenter.mount` pinned by `productCode`; the widget owns the method,
-interval and chain choices and calls back into
-`/api/payment-center/checkout`, which creates the server-side intent and the
-centre order. On 2026-10-04 a fresh account paid the Starter plan with the Stripe
-test card `4242 4242 4242 4242` on the real hosted checkout page and the
-subscription was active before the browser returned to `/dashboard`: the
-`payment.succeeded` notification and the `subscription.period_paid` delivery were
-fulfilled inside the callback itself, with no `npm run payment:reconcile` run.
-The four USDT catalogue prices were retired in the same pass, so the widget's
-interval list holds only the USD prices and a card payment is never offered a
-currency choice. This is local evidence only: real Stripe control with a live
-key, on-chain settlement, a human operator clicking in the real queue, real
-payouts and a production site binding are still outstanding — see
-[external-conditions.md](docs/external-conditions.md).
+## 主要功能
 
-Referral registration now creates a stable invitation code and a durable sync
-job in the same database transaction. A signed, expiring invite cookie lets a
-new user claim the first verified inviter; PostgreSQL rejects later attribution
-changes. The referral worker sends only the newest user snapshot to Payment
-Center and retries temporary failures. A real local HTTP check covered sign-up,
-invite redirect, claim replay, network recovery and the remote inviter binding.
-The multilingual referral page and session-scoped overview now show Payment Center
-balances, currency-filtered ledger entries and recent withdrawals using exact decimal strings,
-plus masked invitation history from the local immutable mirror. The same live
-check covers the BFF and rendered page; a mock checks eight-decimal precision.
-Its disposable users were removed. The local website has a separate
-`referral_read`/`referral_write` key and a **0% local test tier**. Production
-commission rules and payout acceptance are not complete. The withdrawal form
-now creates a durable encrypted intent and sends a signed, idempotent request
-through a separately scoped Payment Center key. It requires verified email
-ownership and a sign-in within 15 minutes; a leased dispatcher retries uncertain
-results with the same external withdrawal ID. Local mock HTTP and browser checks
-cover submission, replay, account masking, refresh recovery, and mobile
-Chinese/English display. They do not prove real balances or payouts.
-`FEATURE_REFERRALS` is on in this local `.env` (bound to the sibling Payment
-Center, whose handshake now reports the referral module ready);
-`FEATURE_REFERRAL_WITHDRAWALS` remains off.
+| 功能 | 说明 |
+| --- | --- |
+| 书库 | 每个账号一个独立目录，按会话校验归属 |
+| 整理方案 | 整本书级别的章节取舍，可逐章改判 |
+| 逐章改写 | 按阅读画像调整讲法、压缩水分、重排章节 |
+| 阅读画像 | 记录你的背景、目标和偏好，作为改写的依据；支持粘贴 AI 回答导入 |
+| 自定义提示词 | `prompts/` 下的模板可改，界面里也能调整 |
+| 模型接入 | OpenAI 兼容接口，内置 OpenAI / DeepSeek / OpenRouter / SiliconFlow / Ollama / LM Studio 预设，也可填任意中转 |
+| EPUB 导出 | EPUB3、分层目录、图片与原书内链保留 |
+| 多语言界面 | English、简体中文、日本語、Deutsch、Español、Français |
+| 账户体系 | 邮箱 + 密码，注册需邮箱验证码；可选 Google / GitHub 登录、Cloudflare Turnstile |
+| 可选集成 | 计费（外部 Payment Center）、返佣与提现、邮件中心，默认全部关闭 |
 
-The separate transactional-mail adapter now sends user-requested email
-verification, email-change approval and password-reset links. Reset links expire after one hour, are
-single-use, and revoke existing sessions after a password change. A local mock
-mail HTTP test covered delivery, callback validation, token replay, old-password
-rejection and new-password sign-in; it did not send real email. Production sender setup remains pending.
+## 技术栈
 
-Account settings now save the display name, email language and marketing
-preference through the existing identity system and ordered contact outbox.
-Changing the sign-in email requires a confirmed current address, current
-password, recent sign-in and confirmation links to both inboxes. Migration
-`0017` adds shared authentication rate limits and atomically revokes all sessions
-when the canonical email changes. Email Center's existing unsubscribe protection
-follows the identity to the new address. See [账户设置与邮箱变更](docs/account-settings.md)
-for policy, local verification and production limits. The SaaS has no operations
-dashboard or administrator API; integration recovery remains in jobs and logs.
+| 层 | 选型 |
+| --- | --- |
+| 框架 | Next.js 16（App Router）、React 19、TypeScript strict |
+| 样式 | Tailwind CSS 4 |
+| 数据库 | PostgreSQL 17、Drizzle ORM |
+| 认证 | Better Auth |
+| 国际化 | next-intl（六种语言，键集合必须一致，有测试卡着） |
+| 校验 | Zod |
+| 测试 | Vitest、Playwright |
 
-### Verification and operations
+## 快速开始
 
-The repository now carries its own verification suite instead of relying on the
-checks used while it was being written. `npm test` runs 26 Vitest files against a
-real PostgreSQL database, each file in its own database cloned from one migrated
-template, so a test may use raw SQL and real concurrency without leaking state
-into the next file; `tests/global-setup.ts` reaps what a crashed run left behind
-and never touches a database that is still connected — ownership is decided by
-the process id recorded with each database, because a worker between two
-statements holds no connection and must still not be mistaken for a leftover.
-`npm run test:e2e` runs
-seven Playwright specs against a real local dev server and the development
-database, serially, because one shared server has to answer a cookie and redirect
-chain; every spec that needs a third party checks its precondition and skips
-naming the missing prerequisite. The specs cover the auth, billing, referral and
-Email Center boundaries, the browser console, plus the responsive matrix the plan
-asks for: the public
-pages at 1440×900, 1024×768 and 390×844 in every locale and both themes, asserted
-as no horizontal overflow, a working theme switch and no secret, wallet address or
-payout account in the served HTML. There are no committed baseline images, so the
-matrix is asserted by property rather than by pixel comparison — a baseline
-generated on its first run would prove nothing. The console spec is the guard for
-a defect that only appeared on a language switch: React 19 reports a script that a
-component renders and never executes it, so the theme arrives as a server-rendered
-class instead, and the spec fails if any console error other than the unconfigured
-Email Center widget's refused connection appears. The accessibility spec runs axe-core
-(WCAG 2.0/2.1 A + AA) over the public pages in every locale and over the entry
-pages at a mobile viewport, and asserts the scan finds nothing: an allowlist of
-accepted violations would be a list of accepted defects. It also pins WCAG 1.4.4
-by name — the viewport meta must not carry `maximum-scale` or
-`user-scalable=no` — because that is the one requirement a page can lose by
-adding a single attribute, and it had been set here until the scan reported it.
-`npm run smoke` starts 16 offline suites, while
-the 11 live suites that need the Payment Center, the Email Center, a chain or a
-real mailbox start only when named with `--live=NAME` — a missing credential is
-reported as blocked, never turned into a fabricated pass. An offline suite whose
-precondition is absent reports the same way: `referral-sync` needs an idle
-referral queue, `email-sync` needs an empty local database, and
-`billing-controls` needs no other `next dev` for this project. Such a suite
-prints `[smoke:<name>] blocked: <reason>`, exits with code 2, and the runner
-lists it under `Blocked smoke suite(s)` without counting it as passed.
+前置条件：Node.js 22 以上；PostgreSQL 17（本机安装或用 Docker）。
 
-The operations commands match the plan's names. `npm run setup` writes a `.env`
-with generated secrets and refuses to touch an existing one without `--rotate`;
-`npm run generate-secret -- <NAME>` prints one secret for a deployment's
-environment store and writes nothing; `npm run db:seed` verifies the schema and
-the capability matrix without inserting anything; `npm run maintenance` applies
-the retention policy (completed payloads 30 days, failed payloads 90 days, audit
-records 365 days; `--dry-run` reports what it would clear); `npm run worker`
-dispatches the `CRON_SECRET`-protected internal endpoints; `npm run reconcile`
-re-queries unresolved payment and email events. ESLint runs as a flat config
-pinned to ESLint 9, the major `eslint-config-next@16` is built against, and
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs these same local
-scripts against a throwaway PostgreSQL service: it never deploys and never talks
-to a production service.
-
-`lib/subscription/manager.ts` is the server-side extension point for a
-subscription change (renew, interval switch, provider switch). It authorises the
-workspace owner, serialises on the subscription row and delegates the money to
-the Payment Center; a cross-provider switch stays refused until
-`SUBSCRIPTION_PROVIDER_SWITCH=allowed` records that the outgoing cancellation
-path has been verified. `lib/observability/logger.ts` accepts only the fields an
-operator needs — module, business id, task id, status, retry count, masked error
-code — and drops the rest, so a log line cannot carry a secret it was handed by
-accident.
-
-Everything that cannot be closed locally — a real Stripe account, an on-chain
-confirmation, a real payout, a production Email Center binding, deployment and
-production smoke — is listed with its reason in
-[external-conditions.md](docs/external-conditions.md). That file, not this
-section, is the authoritative list of pending external conditions.
-
-## Local setup
-
-Requirements: Node.js 22+, npm, PostgreSQL 17. On this Windows machine,
-PostgreSQL 17 is installed at `D:\Program Files\PostgreSQL\17\bin`.
-
-```powershell
+```bash
 npm install
+
+# 从 .env.example 生成 .env，并自动生成本地密钥
+# （BETTER_AUTH_SECRET / CRON_SECRET / INTEGRATION_ENCRYPTION_KEY_V1）
+# 已存在的 .env 永远不会被覆盖
 npm run setup
+```
+
+准备数据库，二选一：
+
+```bash
+# A. Docker：容器开在 127.0.0.1:54329
+npm run db:up
+#   然后把 .env 里的 DATABASE_URL 改成：
+#   postgresql://saas_framework:saas_framework@127.0.0.1:54329/saas_framework
+
+# B. Windows / PowerShell，用本机 PostgreSQL（127.0.0.1:5432）
 npm run db:local:up
+```
+
+建表并启动：
+
+```bash
 npm run db:migrate
-npm run dev
+npm run db:seed      # 只校验表结构和功能开关，不写任何数据
+npm run dev          # http://localhost:3000
 ```
 
-`db:local:up` uses the existing PostgreSQL server on `127.0.0.1:5432`. With
-local `postgres` administrator access, it creates a dedicated `saas_framework`
-role and database if absent, generates the role password, and updates only
-`DATABASE_URL` in the ignored `.env` file. It does not modify Payment Center or
-Email Center databases. Repeating `setup`, `db:local:up` and `db:migrate` is safe.
-The shared PostgreSQL server is not stopped by `npm run db:local:down`.
-Alternatively, with Docker installed, `npm run db:up` starts `compose.dev.yml`
-with a separate database container on port 54329. That option requires changing
-the ignored `.env` database URL to the container credentials and port.
+### 注册需要一个邮箱发送服务
 
-`npm run dev` starts only Next.js. It does not install packages, migrate a
-database or start a recovery worker. The local base URL is
-`http://localhost:3000`.
-Use `npm run worker` for a manual Email Center sync and `npm run reconcile`
-for a manual Payment Center reconciliation run.
-Use `npm run referral:sync` for a bounded referral user sync only after the
-separate referral feature and website-bound key are configured. In cron mode,
-`/api/internal/payment-center/referral-sync` uses the same `CRON_SECRET` and
-runner authentication as the other recovery endpoints.
-When withdrawal submission is enabled after acceptance, schedule
-`npm run withdrawal:dispatch` or authenticated
-`GET /api/internal/payment-center/withdrawal-dispatch` independently. The form
-attempts immediate dispatch, but recovery requires this runner.
-`/api/health` is liveness; `/api/ready` checks PostgreSQL and, when enabled,
-actively checks the Payment Center catalog key and Email Center application
-key, plus the referral site key when enabled. These checks prove only those API surfaces are reachable. They do not
-claim that callbacks, orders, or mail delivery are working.
+注册流程是「先发验证码、再建会话」，所以本地也要有能真正发信的通道，否则注册接口会返回 503（这是有意为之，见 `lib/auth.ts`）。在 `.env` 里填三项即可，Resend 免费档就够：
 
-`POST /api/payment-center/webhook` verifies the callback signature and then
-fulfils the delivery it just accepted: it claims exactly that event and applies
-the complete Stripe invoice period or the verified manual/blockchain/commission
-prepaid period before it answers, so a paid card grants access without waiting
-for a scheduler. Whatever the inline attempt cannot finish stays `pending` with
-its durable row. `npm run payment:reconcile` claims those signed Payment Center
-Inbox events with a
-short lease, queries the website-scoped event and order APIs, and applies the
-same periods as the retry backstop. It retries temporary lookup
-failures and sends incomplete or mismatched evidence to manual review. Run it
-only after the Payment Center website binding, API key and callback secret are
-configured. Each run also refreshes grants that became active or expired as
-their service periods cross the current time. Keep checkout disabled in `.env`
-for any site whose Payment Center binding and live acceptance checks are not
-complete; this local `.env` enables it against the sibling Payment Center, whose
-catalog, manual order, signed callback and grant were verified end to end.
-Commission checkout has its own disabled-by-default `FEATURE_COMMISSION_BALANCE`
-gate. It stores a pending grant before confirming the reserved spend, then waits
-for a verified success event to activate access.
+```bash
+FEATURE_TRANSACTIONAL_EMAIL=true
+RESEND_API_KEY=re_...
+EMAIL_FROM="AI Personal Book Editor <noreply@your-domain>"
+```
 
-After creating a dedicated Email Center application and setting
-`EMAIL_CENTER_URL`, `EMAIL_CENTER_API_KEY`, and `FEATURE_EMAIL_CENTER=true`, run
-`npm run email:sync` with a scheduler at least every 10 seconds to meet the
-normal registration sync target of 30 seconds. Each run has a bounded time
-budget. Failed jobs retry with backoff, then enter `dead_letter` for manual
-review. The queue stores user IDs and event versions rather than a second copy
-of email addresses. The local Email Center migrations and tests now cover
-email rebinding and sticky unsubscribe suppression. Apply those migrations and
-repeat the cross-service check in staging before enabling email changes for
-real users. The current SaaS settings page saves the display name, the email
-language and the marketing preference, and can start a sign-in email change that
-both the old and the new inbox have to confirm.
+### 第一次使用
 
-For a persistent worker service, run `npm run email:loop`. It checks an empty
-queue every five seconds, drains available batches without waiting, and closes
-its database connection on shutdown. Deployment examples and scheduler limits
-are in `docs/recovery-runners.md`.
+注册 → 登录 → 书库导入一本 EPUB → 打开「AI 模型设置」填自己的模型接口和 Key → 生成整理方案 → 改写 → 导出。
 
-For HTTP scheduling, set `RECOVERY_RUNNER_MODE=cron` and a random 32-byte or
-longer `CRON_SECRET`. Call `GET` or `POST /api/internal/email-center/sync` with
-`Authorization: Bearer <CRON_SECRET>` every 10 seconds or use an equivalent
-continuous runner. The endpoint is unavailable in the default `manual` mode.
-It runs the same bounded worker as `npm run email:sync` and returns counts only.
-Verify the deployed scheduler's actual frequency and normal registration
-delivery time before relying on the 30-second target.
-The same Bearer secret and `cron` mode protect
-`GET` or `POST /api/internal/payment-center/reconcile`; schedule it separately
-from the faster Email Center sync. A local manual run remains available through
-`npm run reconcile`.
+模型费用由你的模型服务商直接收取，本项目不经手；本站自己的订阅（如果启用了计费）是另一笔账。
 
-The optional home-page Widget uses `FEATURE_EMAIL_CENTER_WIDGET=true`,
-`EMAIL_CENTER_URL` and `NEXT_PUBLIC_EMAIL_CENTER_WIDGET_KEY`. It loads the
-remote `/email-center-widget.js` and is removed when leaving the home page. The
-page passes its own locale as `data-locale`, so the form follows the language
-the visitor picked here rather than the one their browser announces; switching
-language remounts the Widget, so the change is visible without a reload. The
-public Widget key must belong to the same Email Center application and its
-allowed origins must include the website origin. Widget failures do not stop
-registration or other pages.
+## 环境变量
 
-## Configuration
+`npm run setup` 会生成 `.env`，其余按需填写。完整注释见 `.env.example`。
 
-Copying `.env.example` is done by `npm run setup`, which creates three random
-local secrets without overwriting an existing `.env`. Keep that file private.
-The "Local default" column is what the shipped example contains; this working
-copy's `.env` additionally enables `FEATURE_PAYMENT_CENTER`, `FEATURE_REFERRALS`,
-`FEATURE_EMAIL_CENTER`, `FEATURE_EMAIL_CENTER_WIDGET` and `FEATURE_TURNSTILE`
-(Cloudflare test keys) against the sibling projects — see
-[external-conditions.md](docs/external-conditions.md) for what is still
-unverified.
+**核心（必填）**
 
-| Variable | Local default | Required when | Purpose / source |
-| --- | --- | --- | --- |
-| `APP_BASE_URL` | `http://localhost:3000` | All environments | Public origin of this app |
-| `DATABASE_URL` | Local isolated PostgreSQL | All environments | PostgreSQL connection; `db:local:up` or a hosting provider |
-| `BETTER_AUTH_SECRET` | Generated by setup | All environments | Signs authentication state |
-| `FEATURE_TURNSTILE` | `false` | Public production auth | Enables human verification |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Empty | Turnstile enabled | Public key of the SaaS widget |
-| `TURNSTILE_SECRET_KEY` | Empty | Turnstile enabled | Private Siteverify key; server only |
-| `TURNSTILE_ALLOWED_HOSTNAMES` | Empty | Turnstile enabled | Comma-separated hostnames expected from Siteverify |
-| `FEATURE_PAYMENT_CENTER` | `false` | Payment integration | Enables server-only Payment Center contract after acceptance |
-| `FEATURE_REFERRALS` | `false` | Referral integration | Enables signed invitation claims and referral user sync after acceptance |
-| `PAYMENT_CENTER_REFERRAL_API_KEY` | Empty | Referrals enabled | Separate website-bound `referral_read`/`referral_write` key; no `payment_ingest` |
-| `FEATURE_REFERRAL_WITHDRAWALS` | `false` | Accepted withdrawal flow | Enables the member form and durable dispatch queue |
-| `PAYMENT_CENTER_WITHDRAWAL_API_KEY` | Empty | Withdrawals enabled | Separate website-bound `withdrawal_create` key |
-| `REFERRAL_WITHDRAWAL_REQUEST_SECRET` | Empty | Withdrawals enabled | 32+ character HMAC secret shared only with the Payment Center withdrawal endpoint |
-| `FEATURE_COMMISSION_BALANCE` | `false` | Commission checkout | Enables the two-phase reserve, prepare, confirm and refund contract after acceptance |
-| `FEATURE_EMAIL_CENTER` | `false` | Contact integration | Enables server-only Email Center contact sync after acceptance |
-| `FEATURE_TRANSACTIONAL_EMAIL` | `false` | Email ownership and password reset links | Resend adapter; no registration or sign-in code. No team invitation mail |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Empty | Transactional email enabled | Server-only Resend key and verified sender |
+| 变量 | 用途 |
+| --- | --- |
+| `APP_BASE_URL` | 站点公开地址（生产必须是真实 HTTPS 根地址）；同源检查、回跳和 SEO 都用它 |
+| `DATABASE_URL` | PostgreSQL 连接串 |
+| `BETTER_AUTH_SECRET` | 会话签名密钥，`npm run setup` 自动生成 |
 
-All optional variables and defaults are in `.env.example`. Enabled integrations
-with missing keys are shown as unavailable and reject writes. This app does not
-accept a Stripe secret or Stripe webhook secret. Those stay in Payment Center.
+**邮件**
 
-For the SaaS website, create a **separate** Cloudflare Turnstile widget from the
-Telegram bot widget. Restrict its production hostname and store its Site Key
-and Secret Key in the corresponding variables. The widget uses action
-`saas_auth`; the server validates Siteverify success, action and hostname.
-Official dummy keys work for local tests, but dummy Siteverify responses do not
-carry the real action/hostname values needed for the production metadata check.
-The app rejects dummy keys when `NODE_ENV=production`.
+| 变量 | 用途 |
+| --- | --- |
+| `FEATURE_TRANSACTIONAL_EMAIL` | 打开事务邮件（注册验证码、找回密码） |
+| `RESEND_API_KEY` / `EMAIL_FROM` | Resend 的 Key 和发件人 |
 
-Turnstile confirms a challenge, not ownership of an email address. Newly
-registered users remain `emailVerified=false`. Email ownership confirmation is
-needed before sensitive actions, including withdrawal and payout changes.
+**登录增强（可选）**
 
-## Verification
+| 变量 | 用途 |
+| --- | --- |
+| `FEATURE_TURNSTILE` + `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` / `TURNSTILE_ALLOWED_HOSTNAMES` | Cloudflare Turnstile 人机挑战 |
+| `FEATURE_GOOGLE_OAUTH` + `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google 登录 |
+| `FEATURE_GITHUB_OAUTH` + `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | GitHub 登录 |
 
-The gate a change has to pass is the one the bootstrap plan names, in this
-order, on a migrated database:
+**可选集成（默认关闭）**
 
-```powershell
-npm ci
-npm run db:up            # or npm run db:local:up
+| 变量 | 用途 |
+| --- | --- |
+| `FEATURE_PAYMENT_CENTER` + `PAYMENT_CENTER_*` | 接外部 Payment Center 收款；该服务不在本仓库，不配置时定价页显示「未连接」，其余功能不受影响 |
+| `FEATURE_REFERRALS` / `FEATURE_REFERRAL_WITHDRAWALS` / `FEATURE_COMMISSION_BALANCE` | 邀请返佣与提现，依赖 Payment Center |
+| `FEATURE_EMAIL_CENTER` + `EMAIL_CENTER_*` | 联系人同步与退订管理 |
+| `CRON_SECRET` | 内部 cron 接口的 Bearer 令牌，`npm run setup` 自动生成 |
+| `INTEGRATION_ENCRYPTION_KEY_V1` | 提现收款账户的 AES-256-GCM 加密密钥 |
+
+> 所有密钥只放在被忽略的 `.env` 或部署平台的环境变量里；仓库里没有任何真实凭据。
+
+## 常用命令
+
+| 命令 | 作用 |
+| --- | --- |
+| `npm run dev` / `build` / `start` | 开发、构建、生产启动 |
+| `npm run lint` / `typecheck` | ESLint、`tsc --noEmit` |
+| `npm test` | Vitest（每个测试文件一个隔离数据库） |
+| `npm run test:engine` | 书稿引擎的 node:test 套件 |
+| `npm run test:e2e` | Playwright |
+| `npm run db:generate` / `db:migrate` / `db:studio` | Drizzle 迁移 |
+| `npm run db:up` / `db:down` | Docker 开发数据库 |
+| `npm run seed` | 校验数据库构建与功能开关（不写数据） |
+| `npm run worker` | 手动跑一轮后台任务（邮件同步、对账等） |
+| `npm run email:loop` / `payment:reconcile` | 常驻邮件循环 / 支付对账兜底 |
+| `npm run smoke` | 冒烟套件；live 套件需显式 `--live=NAME` 才跑 |
+
+## 目录结构
+
+```
+app/[locale]/          页面（落地页、定价、书库、工坊、设置…）
+app/api/               接口：books / rewrite / providers / profile / auth / …
+lib/book-engine/       书稿引擎：EPUB 读写、分章、提示词、LLM 调用、导出
+lib/book-store/        按用户隔离的存储层（默认 ./data）
+lib/auth.ts            登录、注册、验证码（Better Auth）
+lib/billing/           订阅与支付意图（可选）
+lib/payment-center/    支付中心适配（可选）
+lib/email-center/      联系人同步（可选）
+lib/referrals/         邀请、返佣、提现（可选）
+messages/              六种语言的界面文案
+prompts/               改写与整理方案的提示词模板
+scripts/ops/           运维脚本：迁移、同步、worker、对账
+tests/                 Vitest 与 Playwright
+```
+
+## 部署
+
+- 运行环境：Node.js 22；先 `npm ci && npm run build`，再用 `npm start`（默认 3000 端口）。
+- 首次部署执行 `npm run db:migrate`；升级时同样先迁移再切流量。
+- `APP_BASE_URL` 必须设成外部可访问的 HTTPS 地址，登录的同源检查靠它，写错会把自家页面判成外站。
+- **`data/`（或 `BOOK_STORAGE_ROOT` 指向的目录）必须挂持久卷**：书稿、中间产物、模型配置和阅读画像都在里面，容器重建不丢。
+- 需要后台同步时再开常驻进程（`npm run worker`、`npm run email:loop`），否则可以只跑 Web。
+- 健康检查：`GET /api/health`（存活）、`GET /api/ready`（依赖就绪）。
+
+## 数据与隐私
+
+- 原书只读，改写结果单独存放，导出另存一本。
+- 书库按账号隔离：`data/users/<userId>/`，接口按会话校验归属。
+- 模型 API Key 存在 `data/users/<userId>/config/providers.json`，接口返回一律打码。
+- 本仓库不收集任何遥测；除你自己配置的模型接口、邮件服务和可选计费服务外，不会向外发送数据。
+
+## 许可证与来源
+
+MIT，见 [LICENSE](LICENSE)。
+
+项目起点是 Vercel 的 [nextjs/saas-starter](https://github.com/nextjs/saas-starter)（MIT），固定的上游提交与许可声明见 [NOTICE.md](NOTICE.md)。其后的书籍引擎、认证、计费、国际化等代码在本仓库维护。
+
+---
+
+## English
+
+**AI Personal Book Editor** turns one EPUB into a better book.
+
+An LLM reads the whole book first, then decides chapter by chapter what to do with each one for a given reader profile: rewrite it in a clearer voice, condense it into a one-page digest, drop it entirely (copyright pages, recommendation prefaces), or keep it as is. It then rewrites, renames and reorders the chapters and exports a new EPUB 3 with the original table-of-contents hierarchy, images and internal links preserved. The source file is never modified.
+
+It is a complete, self-hostable product rather than an SDK:
+
+- **Stack** — Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, PostgreSQL 17 with Drizzle ORM, Better Auth, next-intl (English, 简体中文, 日本語, Deutsch, Español, Français), Vitest and Playwright.
+- **Book engine** — EPUB parsing and writing, chapter planning, per-chapter rewriting against a reader profile, resumable runs, EPUB 3 export.
+- **Model access** — any OpenAI-compatible endpoint; presets for OpenAI, DeepSeek, OpenRouter, SiliconFlow, Ollama and LM Studio. You bring your own key and pay the provider directly.
+- **Optional integrations** — billing through an external Payment Center service (not part of this repository), referral commissions and withdrawals, and an email contact centre. All are off by default; the book features work without them.
+- **Accounts** — email and password with a mailed one-time code, plus optional Google/GitHub sign-in and Cloudflare Turnstile.
+
+### Getting started
+
+```bash
+npm install
+npm run setup            # creates .env with freshly generated local secrets
+npm run db:up            # Docker Postgres on 127.0.0.1:54329 (point DATABASE_URL there)
 npm run db:migrate
-npm run db:seed          # verifies the schema, writes nothing
-npm run lint
-npm run typecheck
-npm test                 # Vitest, one isolated database per test file
-npm run build
+npm run dev              # http://localhost:3000
 ```
 
-`npm test` provisions one PostgreSQL database per test file by cloning
-`saas_framework_test_template`, which is migrated exactly once per run. The
-development database named by `DATABASE_URL` is only read for its connection
-details and is never written to. The template is created as `TEST_DB_ADMIN_USER`
-(default `postgres`, which authenticates without a password over the loopback
-interface); set `TEST_DB_PSQL` when `psql` is not in a standard location. A crash
-mid-run leaves databases whose names start with `saas_framework_test_`; the next
-run reaps the ones nothing is connected to.
+Registration sends a one-time code, so a transactional email sender is required even locally: set `FEATURE_TRANSACTIONAL_EMAIL=true`, `RESEND_API_KEY` and `EMAIL_FROM`. Without them the registration endpoints answer 503 by design.
 
-```powershell
-npm run smoke            # 16 offline suites, no third party needed
-npm run smoke -- --list   # what runs, and the 11 live suites with their reason
-npm run maintenance -- --dry-run   # retention preview; reads the three RETENTION_DAYS vars
-npm run test:e2e         # Playwright, starts npm run dev itself
-```
+### Deployment notes
 
-`npm run smoke` runs every offline suite in sequence and reports each live suite
-it did not run, naming the missing prerequisite. A live suite starts only when it
-is named explicitly, e.g. `npm run smoke -- --live=payment-center-live`; the plan
-requires a missing third-party credential to be reported as blocked rather than
-turned into a fabricated success. An offline suite that cannot run for a local
-reason (busy referral queue, non-empty database, another dev server holding the
-project) reports `[smoke:<name>] blocked: <reason>` and exit code 2, and the run
-summarises it as `Blocked smoke suite(s)` instead of a pass.
+Run `npm run build` then `npm start` on Node.js 22. Apply migrations (`npm run db:migrate`) before serving traffic. Set `APP_BASE_URL` to the public HTTPS origin. Mount `data/` (or `BOOK_STORAGE_ROOT`) on a persistent volume — books, generated artefacts, model settings and reader profiles live there.
 
-`npm run test:e2e` drives a real local dev server and the development database
-(it needs one shared server, so it is serial). Specs whose precondition is a real
-third party skip with that prerequisite named. It writes real accounts and
-removes them again in `afterAll`. The accessibility spec needs
-`@axe-core/playwright`, which is a devDependency: the scan is part of the suite,
-not an optional extra, so a violation fails the run the same way a broken
-redirect does.
-
-GitHub Actions runs the same local scripts (`npm ci`, `npm run db:migrate`,
-`npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run seed`)
-against a `postgres:17` service container. It never deploys and never talks to a
-production service. See [docs/external-conditions.md](docs/external-conditions.md)
-for what cannot be verified locally and what each item is waiting on.
-
-The individual smokes remain available for a targeted check:
-
-```powershell
-npm run smoke:auth
-npm run smoke:email-sync
-npm run smoke:payment-catalog
-npm run smoke:billing-account
-npm run smoke:payment-intent
-npm run smoke:payment-order-contract
-npm run smoke:payment-subscription-contract
-npm run smoke:billing-controls
-npm run smoke:payment-webhook
-npm run smoke:payment-submit
-npm run smoke:subscription-grants
-npm run smoke:payment-inbox
-npm run smoke:prepaid-grants
-npm run smoke:payment-center-live
-npm run smoke:payment-handshake
-npm run smoke:payment-binding:live
-npm run smoke:referral-sync
-npm run smoke:referral-binding:live
-npm run smoke:referral:live
-npm run smoke:email-verification:live
-npm run smoke:password-reset:live
-npm run smoke:account-settings:live
-npm run smoke:withdrawal-crypto
-npm run smoke:withdrawal-intent
-npm run smoke:withdrawal:http
-```
-
-The auth smoke uses a temporary local user, checks registration, session,
-sign-in and concurrent personal workspace creation, then deletes its test data.
-When running a local dev server with official passing Turnstile test keys, set
-`SMOKE_TURNSTILE_TOKEN=XXXX.DUMMY.TOKEN.XXXX` before `npm run smoke:auth`.
-`npm run smoke:turnstile:deny` checks that a failing Siteverify response creates
-no user. These tests do not replace production-widget hostname/action checks.
-The email smoke requires an empty local SaaS database and uses a mock Email
-Center HTTP response; it checks ordered coalescing, the unverified-email consent
-gate, and retry recovery. It does not prove the real service is connected.
-The Payment Center catalog, order and intent smokes use mock HTTP responses.
-They check site binding, exact prices, workspace authorization and immutable
-order matching; they do not charge or create a real Payment Center order. The
-subscription-control smoke starts the SaaS website with a mock Payment Center
-and an isolated local paid grant; it checks personal ownership, cross-user isolation, original order
-binding, repeat updates and uncertain-write recovery. It does not update a
-real Stripe subscription.
-webhook smoke verifies HMAC, timestamp, replay handling and quarantine against
-the local SaaS database. The grant and Inbox smokes use mock Payment Center HTTP
-to verify one grant per invoice or manual/blockchain/commission order, retry recovery,
-manual review, and reversal of only the original paid period. The optional
-`smoke:payment-center-live` test starts Payment Center's isolated test server,
-creates a local manual order, a simulated blockchain settlement and a two-phase
-commission order. It receives signed callbacks, grants one workspace period per
-order, and verifies a commission refund reverses its grant. It resets only Payment Center's `payment_center_test` database
-and deletes its temporary SaaS records. It does not charge a real payment method
-or charge a real payment method.
-With the sibling Email Center running at `http://localhost:3100`, run
-`npm run smoke:email-center:live` against empty local test databases. It creates
-temporary records and verifies the real authenticated contact API for
-registration and a locale change, then removes those records.
-With local SaaS and Payment Center services running, `smoke:payment-handshake`
-checks HMAC, timestamp, site binding and one-use challenges against SaaS;
-`smoke:payment-binding:live` checks the dedicated website catalog over HTTP.
-Neither test creates a charge or asserts that the three integration modules
-are ready.
-
-## Source and license
-
-See [NOTICE.md](NOTICE.md) and [LICENSE](LICENSE) for upstream provenance and
-MIT license terms.
+Licensed under the MIT License; see [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md) for the upstream `nextjs/saas-starter` provenance.

@@ -2,8 +2,7 @@ import { createRequire } from 'node:module';
 import { describe, expect, it } from 'vitest';
 
 /**
- * Google and GitHub sign-in
- * (spec: docs/superpowers/specs/2026-10-08-social-login-design.md).
+ * Google and GitHub sign-in.
  *
  * The login surface cannot be rendered under Vitest — `tests/referral-ui.test.ts`
  * explains why this repository pins UI contracts over real rendered sources
