@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import {
@@ -33,6 +33,16 @@ export default function BookClient({ bookId }: { bookId: string }) {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
+  const errorRef = useRef<HTMLParagraphElement | null>(null);
+
+  /**
+   * 错误提示在页面顶部，而用户在章节表格上点「重试」时往往已经滚到很下面。
+   * 报错落在屏幕外，看起来就是「点了没反应」。错误一出现就把它滚到视野中央，
+   * 至少让用户看到到底发生了什么。
+   */
+  useEffect(() => {
+    if (error) errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [error]);
 
   const load = useCallback(async () => {
     try {
@@ -358,7 +368,12 @@ export default function BookClient({ bookId }: { bookId: string }) {
       )}
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+        <p
+          ref={errorRef}
+          data-book-error
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
+        >
           {error}
         </p>
       )}

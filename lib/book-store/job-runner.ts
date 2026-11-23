@@ -26,11 +26,36 @@ import { getRewriteContext } from './engine-context';
 import { withBookUser } from './storage';
 import { syncBookIndex } from './book-index';
 
-/** 进程内唯一的引擎任务管理器。getContext 在用户上下文里完成挂载。 */
-const manager = new JobManager({ getContext: getRewriteContext });
+/**
+ * 进程内唯一的引擎任务管理器。getContext 在用户上下文里完成挂载。
+ *
+ * 必须挂在 globalThis 上，不能用模块级常量：Next.js 会把
+ * instrumentation 和路由处理编成两套 bundle，同一个模块各打一份。
+ * 生产镜像里可以同时找到两份 `job-runner`（instrumentation 的 chunk
+ * 和路由的 chunk），两边的 `manager` 是两个互不相识的对象 ——
+ * 后台镜像循环跑在 instrumentation 那份里，永远看不到路由启动的任务，
+ * 于是 book_jobs 的行一直停在 running，用户点「重试」只会收到 409，
+ * 界面上看起来就是按钮没反应。
+ *
+ * globalThis 在同一个 Node 进程里是共享的，两套 bundle 就能拿到同一个
+ * 实例；dev 模式热重载重新求值模块时也会复用，不会丢正在跑的任务。
+ */
+const MANAGER_KEY = Symbol.for('saas.book-job-manager');
+const managerStore = globalThis as unknown as Record<symbol, JobManager | undefined>;
+const manager = managerStore[MANAGER_KEY] ?? new JobManager({ getContext: getRewriteContext });
+managerStore[MANAGER_KEY] = manager;
 
 /** 已经写过最终状态的任务 id，防止后台镜像反复覆盖。 */
 const finalized = new Set<string>();
+
+/**
+ * 活跃任务行多久没更新就算「失联」。
+ *
+ * 镜像循环每 5 秒写一次进度；多实例部署时，真正在跑的那台会持续刷新。
+ * 超过这个时间还是 running，说明那台进程已经没了（重启 / 崩溃），
+ * 把行收尾掉，否则用户永远卡在「已有任务在运行」。
+ */
+const BOOK_JOB_STALE_MS = 3 * 60_000;
 
 export type StartBookJobArgs = {
   userId: string;
@@ -87,11 +112,57 @@ export async function startBookJob(args: StartBookJobArgs) {
   const { userId, bookId, kind, chapters = [], resume = false, mode } = args;
 
   const active = await db
-    .select({ id: bookJobs.id })
+    .select({ id: bookJobs.id, status: bookJobs.status, updatedAt: bookJobs.updatedAt })
     .from(bookJobs)
     .where(and(eq(bookJobs.bookId, bookId), inArray(bookJobs.status, ['queued', 'running'])));
   if (active.length) {
-    throw new AppError('这本书已有任务在运行中', { code: 'JOB_ACTIVE', status: 409 });
+    /**
+     * 活跃行不一定真的还在跑：进程重启、崩溃、或者镜像循环没跟上，
+     * 都会留下一条永远 running 的行。不收拾它，用户点多少次重试
+     * 都只会收到 409。
+     *
+     * 判定分三种：
+     *  - 本进程内存里还在跑 → 真的在跑，拒绝；
+     *  - 内存里已经结束（镜像还没来得及落库）→ 按内存的最终状态收尾；
+     *  - 内存里没有、且超过 BOOK_JOB_STALE_MS 没更新 → 失联，收尾。
+     */
+    const now = Date.now();
+    const blockers: string[] = [];
+    const settle: Array<{ id: string; status: 'paused' | 'done' | 'failed'; error: string | null }> = [];
+    for (const row of active) {
+      const live = manager.get(row.id) as { status?: string; error?: string | null } | null;
+      if (live && (live.status === 'running' || live.status === 'pausing')) {
+        blockers.push(row.id);
+        continue;
+      }
+      if (live) {
+        const dbStatus = toDbStatus(live.status || '');
+        settle.push({
+          id: row.id,
+          status: dbStatus === 'running' ? 'paused' : dbStatus,
+          error: live.error || null,
+        });
+        continue;
+      }
+      if (now - new Date(row.updatedAt).getTime() < BOOK_JOB_STALE_MS) {
+        blockers.push(row.id);
+        continue;
+      }
+      settle.push({
+        id: row.id,
+        status: 'paused',
+        error: '上一次任务没有正常收尾（长时间没有进度更新），已自动结束，可以重新开始',
+      });
+    }
+    if (blockers.length) {
+      throw new AppError('这本书已有任务在运行中', { code: 'JOB_ACTIVE', status: 409 });
+    }
+    for (const row of settle) {
+      await db
+        .update(bookJobs)
+        .set({ status: row.status, error: row.error, updatedAt: new Date() })
+        .where(eq(bookJobs.id, row.id));
+    }
   }
 
   const job = await withBookUser(userId, () => {
@@ -207,19 +278,24 @@ export async function mirrorBookJobs(): Promise<{ active: number; finalized: num
       continue;
     }
     if (finalized.has(job.id)) continue;
+    const row = await db.query.bookJobs.findFirst({ where: eq(bookJobs.id, job.id) }).catch(() => null);
+    try {
+      await db
+        .update(bookJobs)
+        .set({
+          status: dbStatus,
+          progress: progressOf(job),
+          error: job.error || (job.failed?.length ? `${job.failed.length} 章失败` : null),
+          updatedAt: new Date(),
+        })
+        .where(eq(bookJobs.id, job.id));
+    } catch {
+      // 写库暂时失败（连接抖动等）：这一轮先不标记 finalized，
+      // 下一轮还会再写，否则这条任务行会永远停在 running。
+      continue;
+    }
     finalized.add(job.id);
     done += 1;
-    const row = await db.query.bookJobs.findFirst({ where: eq(bookJobs.id, job.id) }).catch(() => null);
-    await db
-      .update(bookJobs)
-      .set({
-        status: dbStatus,
-        progress: progressOf(job),
-        error: job.error || (job.failed?.length ? `${job.failed.length} 章失败` : null),
-        updatedAt: new Date(),
-      })
-      .where(eq(bookJobs.id, job.id))
-      .catch(() => {});
     if (row) {
       await syncBookIndex(row.userId, job.bookId).catch(() => {});
     }

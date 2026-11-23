@@ -104,6 +104,35 @@ test('全角数字会被归一化后再比较', () => {
   assert.deepEqual([...b.keys()], [...a.keys()]);
 });
 
+/**
+ * 回归：2026-11-23《乌合之众》第 31 章。
+ *
+ * 原文的「1. / 2.」是列表编号，不是数据；改写把它们写成「第一大类 /
+ * 第二大类」后被判「数字丢失 2/3」，整章失败。连续编号也要一起豁免，
+ * 否则修好第一个、第二个还会被当成数字。
+ */
+test('回归：段首 / 连续的列表编号不算数字 token', () => {
+  const tokens = extractNumberTokens(
+    '第一章 群体的分类。 1.异质的群体：由各种人组成。 2.同质的群体：由同类人组成。 注62',
+  );
+  assert.deepEqual([...tokens.keys()], ['62']);
+});
+
+test('回归：（1）（2）这类编号同样不算数字 token', () => {
+  const tokens = extractNumberTokens('（1）甲 （2）乙 （3）丙');
+  assert.deepEqual([...tokens.keys()], []);
+});
+
+test('列表编号之外的数字仍然要检查', () => {
+  const tokens = extractNumberTokens('1.甲 2.乙。其中 3 个人，占 25%，另有 1.5 万元。');
+  const keys = [...tokens.keys()];
+  assert.ok(keys.includes('3'), keys.join(','));
+  assert.ok(keys.includes('25%'), keys.join(','));
+  assert.ok(keys.includes('1.5'), keys.join(','));
+  assert.ok(!keys.includes('1'), keys.join(','));
+  assert.ok(!keys.includes('2'), keys.join(','));
+});
+
 test('extractEntityTokens 抓拉丁专名与缩写', () => {
   const entities = extractEntityTokens('Benjamin Graham 与 DCF 模型，见《证券分析》。');
   const keys = [...entities.keys()];
