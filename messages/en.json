@@ -133,6 +133,7 @@
     "autoRenewNotice": "Your Stripe subscription still renews on {date}. Time bought here is added after your current period ends, and Stripe keeps charging on schedule — each charge adds more time.",
     "autoRenewBillingLink": "Turn off auto-renew on the billing page",
     "autoRenewPlanSwitch": "Switching to this plan turns off your existing Stripe auto-renewal once this payment succeeds.",
+    "subscriptionRequired": "The library, chapter rewrites and exports need an active subscription. It is $1 a month, and access opens as soon as the payment is confirmed.",
     "scopeTitle": "What $1 a month includes",
     "scopeBody": "$1 a month gives you this tool: library, editing plans, chapter rewrites and exports are included. Paying with Stripe renews monthly and you can turn renewal off anytime on the billing page — you keep access until the month you paid for ends. Paying with Binance Pay, OKX or a manual transfer buys one month at a time and does not renew automatically. The model API is yours to configure, and its usage is billed by your provider, not by us."
   },
@@ -1014,7 +1015,7 @@
     "eyebrow": "AI-rebuilt EPUB",
     "h1": "One book in.| A new book out —| rebuilt by AI, for you.",
     "lead": "AI reads the whole book first, then decides chapter by chapter: core chapters are rewritten for your reader profile and their sentences smoothed out, padded ones collapse into a one-page digest, and filler — forewords, copyright pages, reprint prefaces — is dropped entirely. Important ideas reach you at the density you need; chapters get new names and a new order. What you export is a finished book. Right now it takes DRM-free EPUB.",
-    "ctaPrimary": "Start organizing free",
+    "ctaPrimary": "Start for $1 a month",
     "ctaSecondary": "See how it rebuilds a book",
     "proof1": "31 books and 72 EPUBs from the developer's own library in use",
     "proof2": "Original stays read-only",

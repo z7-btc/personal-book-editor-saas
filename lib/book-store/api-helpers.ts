@@ -10,6 +10,7 @@ import 'server-only';
 
 import { auth } from '@/lib/auth';
 import { AppError } from '@/lib/book-engine/util/errors.js';
+import { resolveToolAccess } from '@/lib/subscription/access';
 import { withBookUser } from './storage';
 
 const privateHeaders = { 'Cache-Control': 'private, no-store', Vary: 'Cookie' };
@@ -30,12 +31,6 @@ export function bookErrorResponse(error: unknown): Response {
   };
   if (status >= 500) console.error('[book-api]', error);
   return Response.json(payload, { status, headers: privateHeaders });
-}
-
-/** 从请求头里取当前用户 id；未登录返回 null。 */
-export async function sessionUserId(request: Request): Promise<string | null> {
-  const session = await auth.api.getSession({ headers: request.headers });
-  return session?.user?.id ?? null;
 }
 
 /**
@@ -67,18 +62,29 @@ function safeStringify(data: unknown): string {
 }
 
 /**
- * 所有书籍接口的入口包装：未登录 401，其余在用户上下文里执行。
+ * 所有书籍接口的入口包装：未登录 401，没有有效订阅 402，其余在用户上下文里执行。
  * handler 返回值会按 JSON 输出（除非它自己返回了 Response）。
+ *
+ * 订阅检查放在这一层，而不是散在各 route 里：新增一个书籍接口时忘了加门槛，
+ * 就会再出现「没开订阅也能整本书跑完」的漏洞。判定规则见 `lib/subscription/access.ts`。
  */
 export async function withBookApi(
   request: Request,
   handler: (userId: string) => Promise<Response | unknown>,
 ): Promise<Response> {
   try {
-    const userId = await sessionUserId(request);
-    if (!userId) {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session?.user) {
       throw new AppError('未登录', { code: 'UNAUTHORIZED', status: 401 });
     }
+    const access = await resolveToolAccess(session.user);
+    if (!access.allowed) {
+      throw new AppError('需要订阅后才能使用书库和改写功能', {
+        code: 'SUBSCRIPTION_REQUIRED',
+        status: 402,
+      });
+    }
+    const userId = session.user.id;
     const result = await withBookUser(userId, () => handler(userId));
     if (result instanceof Response) return result;
     return new Response(safeStringify(result), {

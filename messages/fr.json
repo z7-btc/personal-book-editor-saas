@@ -133,6 +133,7 @@
     "autoRenewNotice": "Votre abonnement Stripe se renouvelle le {date}. La durée achetée ici est ajoutée après la fin de votre période actuelle, et Stripe continue de facturer comme prévu — chaque prélèvement ajoute du temps.",
     "autoRenewBillingLink": "Désactiver le renouvellement automatique sur la page de facturation",
     "autoRenewPlanSwitch": "Passer à cette offre désactive votre renouvellement automatique Stripe existant dès que ce paiement réussit.",
+    "subscriptionRequired": "La bibliothèque, la réécriture des chapitres et les exportations nécessitent un abonnement actif. Il coûte 1 USD par mois et l’accès s’ouvre dès la confirmation du paiement.",
     "scopeTitle": "Ce que comprend l’offre à 1 USD par mois",
     "scopeBody": "1 USD par mois vous donne accès à cet outil : bibliothèque, plans d’édition, réécriture chapitre par chapitre et exports inclus. Avec Stripe, le renouvellement est mensuel et automatique, et vous pouvez le désactiver à tout moment sur la page de facturation ; vous gardez l’accès jusqu’à la fin du mois payé. Avec Binance Pay, OKX ou un virement manuel, vous achetez un mois à la fois, sans renouvellement automatique. L’API du modèle est à configurer vous-même ; son usage est facturé par votre fournisseur, pas par nous."
   },
@@ -1014,7 +1015,7 @@
     "eyebrow": "EPUB reconstruit par l’IA",
     "h1": "Un livre entre.| Un livre neuf sort,| reconstruit pour vous.",
     "lead": "L’IA lit d’abord le livre entier, puis décide chapitre par chapitre : les chapitres essentiels sont réécrits selon votre profil de lecteur et leurs phrases lissées, les chapitres gonflés sont ramenés à une page de synthèse, et le remplissage — avant-propos, pages de copyright, préfaces — disparaît complètement. Les idées importantes vous parviennent à la densité qui vous convient ; les chapitres reçoivent de nouveaux titres et un nouvel ordre. Ce que vous exportez est un livre fini. Pour l’instant, le format pris en charge est l’EPUB sans DRM.",
-    "ctaPrimary": "Commencer gratuitement",
+    "ctaPrimary": "Commencer pour 1 USD par mois",
     "ctaSecondary": "Voir comment un livre est refait",
     "proof1": "31 livres et 72 EPUB de la bibliothèque du développeur déjà passés par là",
     "proof2": "L’original reste en lecture seule",

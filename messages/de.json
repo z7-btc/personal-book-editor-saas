@@ -133,6 +133,7 @@
     "autoRenewNotice": "Ihr Stripe-Abonnement verlängert sich weiterhin am {date}. Hier gekaufte Zeit wird nach Ende Ihres aktuellen Zeitraums hinzugefügt, und Stripe bucht planmäßig weiter — jede Buchung fügt weitere Zeit hinzu.",
     "autoRenewBillingLink": "Automatische Verlängerung auf der Abrechnungsseite deaktivieren",
     "autoRenewPlanSwitch": "Beim Wechsel zu diesem Tarif wird Ihre bestehende automatische Stripe-Verlängerung deaktiviert, sobald diese Zahlung erfolgreich ist.",
+    "subscriptionRequired": "Bibliothek, Kapitel-Umschreibungen und Exporte erfordern ein aktives Abo. Es kostet 1 USD pro Monat; der Zugang wird nach Zahlungsbestätigung freigeschaltet.",
     "scopeTitle": "Was 1 USD pro Monat umfasst",
     "scopeBody": "1 USD pro Monat gibt dir dieses Werkzeug: Bibliothek, Bearbeitungspläne, Kapitel-Umschreibungen und Exporte sind enthalten. Bei Zahlung mit Stripe verlängert sich das monatlich automatisch; die Verlängerung lässt sich jederzeit auf der Abrechnungsseite abschalten, der Zugang bleibt bis zum Ende des bezahlten Monats. Zahlung per Binance Pay, OKX oder Überweisung kauft jeweils einen Monat ohne automatische Verlängerung. Die Modell-API konfigurierst du selbst; ihre Nutzung rechnet dein Anbieter ab, nicht wir."
   },
@@ -1014,7 +1015,7 @@
     "eyebrow": "EPUB, von KI neu gebaut",
     "h1": "Ein Buch hinein.| Ein neues Buch heraus,| für dich neu gebaut.",
     "lead": "Die KI liest zuerst das ganze Buch und entscheidet dann Kapitel für Kapitel: Kernthemen werden auf dein Leserprofil zugeschnitten neu geschrieben und sprachlich geglättet, aufgeblähte Kapitel zu einer Seite Verdichtung zusammengefasst, und Füllmaterial – Geleitworte, Copyright-Seiten, Vorworte – fällt ganz weg. Wichtige Inhalte erreichen dich in der Dichte, die du brauchst; Kapitel bekommen neue Namen und eine neue Reihenfolge. Was du exportierst, ist ein fertiges Buch. Derzeit wird DRM-freies EPUB unterstützt.",
-    "ctaPrimary": "Kostenlos starten",
+    "ctaPrimary": "Für 1 USD pro Monat starten",
     "ctaSecondary": "So wird ein Buch umgebaut",
     "proof1": "31 Bücher und 72 EPUBs aus der eigenen Bibliothek des Entwicklers im Einsatz",
     "proof2": "Das Original bleibt schreibgeschützt",

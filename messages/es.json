@@ -133,6 +133,7 @@
     "autoRenewNotice": "Tu suscripción de Stripe se renueva el {date}. El tiempo comprado aquí se añade después de que termine tu período actual, y Stripe sigue cobrando según lo previsto: cada cobro añade más tiempo.",
     "autoRenewBillingLink": "Desactivar la renovación automática en la página de facturación",
     "autoRenewPlanSwitch": "Cambiar a este plan desactiva tu renovación automática de Stripe existente cuando este pago se complete.",
+    "subscriptionRequired": "La biblioteca, la reescritura por capítulos y las exportaciones requieren una suscripción activa. Cuesta 1 USD al mes y el acceso se activa al confirmar el pago.",
     "scopeTitle": "Qué incluye 1 USD al mes",
     "scopeBody": "1 USD al mes te da acceso a esta herramienta: biblioteca, planes de edición, reescritura por capítulos y exportaciones incluidos. Con Stripe la renovación es mensual y automática, y puedes desactivarla cuando quieras en la página de facturación; el acceso se mantiene hasta que termine el mes pagado. Con Binance Pay, OKX o transferencia manual compras un mes cada vez y no se renueva automáticamente. La API del modelo la configuras tú; su uso lo factura tu proveedor, no nosotros."
   },
@@ -1014,7 +1015,7 @@
     "eyebrow": "EPUB reconstruido con IA",
     "h1": "Entra un libro.| Sale un libro nuevo,| reconstruido para ti.",
     "lead": "La IA lee primero el libro entero y luego decide capítulo a capítulo: los capítulos centrales se reescriben según tu perfil de lector y se alisan las frases, los capítulos inflados se comprimen en una página de resumen, y el relleno —prólogos, páginas de copyright, prefacios— se elimina por completo. Las ideas importantes te llegan con la densidad que necesitas; los capítulos reciben nombres y un orden nuevos. Lo que exportas es un libro terminado. Por ahora admite EPUB sin DRM.",
-    "ctaPrimary": "Empezar gratis",
+    "ctaPrimary": "Empezar por 1 USD al mes",
     "ctaSecondary": "Ver cómo transforma un libro",
     "proof1": "31 libros y 72 EPUB de la biblioteca del propio desarrollador en uso",
     "proof2": "El original queda en solo lectura",

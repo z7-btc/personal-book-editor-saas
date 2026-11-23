@@ -39,7 +39,7 @@ export function isActiveJob(job: { status: string }): boolean {
   return ACTIVE.has(job.status);
 }
 
-export function JobsProvider({ children }: { children: React.ReactNode }) {
+export function JobsProvider({ children, enabled = true }: { children: React.ReactNode; enabled?: boolean }) {
   const [jobs, setJobs] = useState<JobView[]>([]);
   const [history, setHistory] = useState<JobHistoryRow[]>([]);
   const [finished, setFinished] = useState<FinishedJob[]>([]);
@@ -49,6 +49,8 @@ export function JobsProvider({ children }: { children: React.ReactNode }) {
   const activeRef = useRef(false);
 
   useEffect(() => {
+    // 没订阅（或没登录）时不轮询：接口会回 402，白问。
+    if (!enabled) return;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -100,7 +102,7 @@ export function JobsProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [nonce]);
+  }, [nonce, enabled]);
 
   const refresh = useCallback(() => setNonce((n) => n + 1), []);
   const pause = useCallback(async (jobId: string) => {
@@ -111,7 +113,7 @@ export function JobsProvider({ children }: { children: React.ReactNode }) {
   return (
     <JobsContext.Provider value={{ jobs, history, finished, version, refresh, pause }}>
       {children}
-      <JobDock />
+      {enabled && <JobDock />}
     </JobsContext.Provider>
   );
 }
