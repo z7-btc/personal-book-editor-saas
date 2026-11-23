@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
+import { GithubMark } from '@/components/icons/github-mark';
 import { LOCALES } from '@/components/language-switcher';
 import { applyThemeChoice, useThemeChoice } from '@/components/theme-switcher';
 import { THEME_CHOICES, type ThemeChoice } from '@/lib/theme';
@@ -113,6 +114,17 @@ export default function SiteHeader() {
             <span className="hidden sm:inline">{t('signIn')}</span>
           </Link>
         )}
+        {/* 开源仓库：品牌图标本身就是标签，不再加文字，窄屏收进汉堡菜单。 */}
+        <a
+          href="https://github.com/z7-btc/personal-book-editor-saas"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="GitHub"
+          title="GitHub"
+          className="hidden h-10 w-10 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-700 transition-colors hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 sm:inline-flex dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+        >
+          <GithubMark />
+        </a>
         <div className="hidden md:block">
           <PreferencesMenu labels={{ preferences: t('preferences'), language: t('language'), theme: t('theme'), light: t('light'), dark: t('dark'), system: t('system') }} />
         </div>
@@ -298,6 +310,7 @@ function MobileMenu({ signedIn, pathname, labels, onSignOut, onClose }: {
       <Link href="/pricing" onClick={onClose} className={itemClass('/pricing')}><CreditCard aria-hidden="true" className="h-4 w-4" />{labels.pricing}</Link>
       <Link href="/faq" onClick={onClose} className={itemClass('/faq')}><CircleHelp aria-hidden="true" className="h-4 w-4" />{labels.faq}</Link>
       <a href="https://x.com/traderdonmark" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"><XMarkIcon />{labels.followX}</a>
+      <a href="https://github.com/z7-btc/personal-book-editor-saas" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"><GithubMark />GitHub</a>
     </div>
 
     <p className="mt-4 text-xs font-medium text-gray-500 uppercase dark:text-gray-400">{labels.account}</p>
