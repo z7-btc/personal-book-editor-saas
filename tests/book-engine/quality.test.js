@@ -123,6 +123,19 @@ test('回归：（1）（2）这类编号同样不算数字 token', () => {
   assert.deepEqual([...tokens.keys()], []);
 });
 
+test('回归：冒号 / 逗号后的行内列表编号同样不算数字 token', () => {
+  const tokens = extractNumberTokens('他给出两条建议：1. 先读原文 2. 再写摘要，并强调 3 次。');
+  assert.deepEqual([...tokens.keys()], ['3']);
+});
+
+test('带小数点的真实数据不会被编号规则误扣', () => {
+  const tokens = extractNumberTokens('比例是 3.5 万，另有 2023 年的 12.5% 记录。');
+  const keys = [...tokens.keys()];
+  assert.ok(keys.includes('3.5'), keys.join(','));
+  assert.ok(keys.includes('2023'), keys.join(','));
+  assert.ok(keys.includes('12.5%'), keys.join(','));
+});
+
 test('列表编号之外的数字仍然要检查', () => {
   const tokens = extractNumberTokens('1.甲 2.乙。其中 3 个人，占 25%，另有 1.5 万元。');
   const keys = [...tokens.keys()];
