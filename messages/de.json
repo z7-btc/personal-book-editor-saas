@@ -1121,5 +1121,19 @@
     "footerPricing": "Preise",
     "footerPrivacy": "Datenschutz",
     "footerTerms": "Nutzungsbedingungen"
+  },
+  "CheckoutReturn": {
+    "successTitle": "Dein Zugang ist aktiv",
+    "successBody": "Deine Zahlung ist bestätigt. Bibliothek, Kapitel-Umschreibungen und Exporte sind freigeschaltet – du kannst sofort mit deinem Buch loslegen.",
+    "unlockedLibrary": "Bibliothek",
+    "unlockedRewrite": "Kapitel-Umschreibungen",
+    "unlockedExport": "Exporte",
+    "successCta": "Buch jetzt bearbeiten",
+    "viewBilling": "Abrechnung ansehen",
+    "close": "Schließen",
+    "confirming": "Zahlung wird bestätigt…",
+    "pendingTitle": "Zahlung eingegangen",
+    "pendingBody": "Dein Zugang wird noch bestätigt – normalerweise ist er innerhalb einer Minute freigeschaltet. Lade die Seite neu oder prüfe den Status auf der Abrechnungsseite.",
+    "pendingRefresh": "Seite neu laden"
   }
 }

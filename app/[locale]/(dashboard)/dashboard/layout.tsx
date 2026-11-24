@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { resolveToolAccess } from '@/lib/subscription/access';
 import { JobDock, JobsProvider } from '@/components/books/jobs-provider';
+import { CheckoutReturnNotice } from '@/components/billing/checkout-return-notice';
 import DashboardNav from '@/components/books/dashboard-nav';
 import type { Metadata } from 'next';
 
@@ -32,6 +33,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <main className="min-w-0">{children}</main>
       </div>
       <JobDock />
+      {/* 付款回跳的成功提示：只在 `?checkout=returned` 时出现，其他页面不渲染。 */}
+      <CheckoutReturnNotice initialAccess={access} />
     </JobsProvider>
   );
 }

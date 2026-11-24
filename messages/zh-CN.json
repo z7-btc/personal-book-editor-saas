@@ -1121,5 +1121,19 @@
     "footerPricing": "定价",
     "footerPrivacy": "隐私说明",
     "footerTerms": "使用条款"
+  },
+  "CheckoutReturn": {
+    "successTitle": "权益已开通",
+    "successBody": "付款已经确认，书库、逐章改写和导出全部解锁。现在就可以开始整理你的书了。",
+    "unlockedLibrary": "书库",
+    "unlockedRewrite": "逐章改写",
+    "unlockedExport": "导出",
+    "successCta": "开始整理书籍",
+    "viewBilling": "查看账单",
+    "close": "关闭",
+    "confirming": "正在确认付款…",
+    "pendingTitle": "付款已收到",
+    "pendingBody": "权益正在确认中，通常一分钟内自动开通。可以刷新页面看看，或到账单页查看最新状态。",
+    "pendingRefresh": "刷新页面"
   }
 }
