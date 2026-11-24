@@ -135,7 +135,10 @@
     "autoRenewPlanSwitch": "Beim Wechsel zu diesem Tarif wird Ihre bestehende automatische Stripe-Verlängerung deaktiviert, sobald diese Zahlung erfolgreich ist.",
     "subscriptionRequired": "Bibliothek, Kapitel-Umschreibungen und Exporte erfordern ein aktives Abo. Es kostet 1 USD pro Monat; der Zugang wird nach Zahlungsbestätigung freigeschaltet.",
     "scopeTitle": "Was 1 USD pro Monat umfasst",
-    "scopeBody": "1 USD pro Monat gibt dir dieses Werkzeug: Bibliothek, Bearbeitungspläne, Kapitel-Umschreibungen und Exporte sind enthalten. Bei Zahlung mit Stripe verlängert sich das monatlich automatisch; die Verlängerung lässt sich jederzeit auf der Abrechnungsseite abschalten, der Zugang bleibt bis zum Ende des bezahlten Monats. Zahlung per Binance Pay, OKX oder Überweisung kauft jeweils einen Monat ohne automatische Verlängerung. Die Modell-API konfigurierst du selbst; ihre Nutzung rechnet dein Anbieter ab, nicht wir."
+    "scopeBody": "1 USD pro Monat gibt dir dieses Werkzeug: Bibliothek, Bearbeitungspläne, Kapitel-Umschreibungen und Exporte sind enthalten. Bei Zahlung mit Stripe verlängert sich das monatlich automatisch; die Verlängerung lässt sich jederzeit auf der Abrechnungsseite abschalten, der Zugang bleibt bis zum Ende des bezahlten Monats. Zahlung per Binance Pay, OKX oder Überweisung kauft jeweils einen Monat ohne automatische Verlängerung. Die Modell-API konfigurierst du selbst; ihre Nutzung rechnet dein Anbieter ab, nicht wir.",
+    "productDescriptions": {
+      "tool": "1 USD pro Monat oder 10 USD pro Jahr (2 USD pro Jahr günstiger als monatliche Zahlung): Bibliothek, Bearbeitungspläne, Kapitel-Umschreibungen und Exporte. Zahlung mit Stripe verlängert sich automatisch im gewählten Intervall und lässt sich jederzeit auf der Abrechnungsseite abschalten; Zahlung per Binance Pay, OKX oder Überweisung kauft jeweils einen Monat oder ein Jahr ohne automatische Verlängerung. Die Modell-API für Umschreibungen konfigurierst du selbst in den Einstellungen; ihre Nutzung rechnet dein Modellanbieter direkt mit dir ab."
+    }
   },
   "Faq": {
     "title": "Häufige Fragen",

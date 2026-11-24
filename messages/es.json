@@ -135,7 +135,10 @@
     "autoRenewPlanSwitch": "Cambiar a este plan desactiva tu renovación automática de Stripe existente cuando este pago se complete.",
     "subscriptionRequired": "La biblioteca, la reescritura por capítulos y las exportaciones requieren una suscripción activa. Cuesta 1 USD al mes y el acceso se activa al confirmar el pago.",
     "scopeTitle": "Qué incluye 1 USD al mes",
-    "scopeBody": "1 USD al mes te da acceso a esta herramienta: biblioteca, planes de edición, reescritura por capítulos y exportaciones incluidos. Con Stripe la renovación es mensual y automática, y puedes desactivarla cuando quieras en la página de facturación; el acceso se mantiene hasta que termine el mes pagado. Con Binance Pay, OKX o transferencia manual compras un mes cada vez y no se renueva automáticamente. La API del modelo la configuras tú; su uso lo factura tu proveedor, no nosotros."
+    "scopeBody": "1 USD al mes te da acceso a esta herramienta: biblioteca, planes de edición, reescritura por capítulos y exportaciones incluidos. Con Stripe la renovación es mensual y automática, y puedes desactivarla cuando quieras en la página de facturación; el acceso se mantiene hasta que termine el mes pagado. Con Binance Pay, OKX o transferencia manual compras un mes cada vez y no se renueva automáticamente. La API del modelo la configuras tú; su uso lo factura tu proveedor, no nosotros.",
+    "productDescriptions": {
+      "tool": "1 USD al mes, o 10 USD al año (2 USD al año menos que pagando mes a mes): biblioteca, planes de edición, reescritura por capítulos y exportaciones. Con Stripe, la renovación es automática en el intervalo que elijas y puedes desactivarla cuando quieras en la página de facturación; con Binance Pay, OKX o transferencia manual compras un mes o un año cada vez y no se renueva automáticamente. La API del modelo para las reescrituras la configuras tú en los ajustes; su uso te lo factura directamente tu proveedor de modelos."
+    }
   },
   "Faq": {
     "title": "Preguntas frecuentes",
