@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useMessages, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { AutoRenewNotice } from './auto-renew-notice';
 import { PaymentCenterCheckout } from './payment-center-widget';
@@ -23,6 +23,9 @@ const displayAmount = (value: string) => {
  */
 export function PricingPlans({ products }: { products: Product[] }) {
   const t = useTranslations('Pricing');
+  const messages = useMessages() as {
+    Pricing?: { productDescriptions?: Record<string, unknown> };
+  };
   const intervalLabels: Record<string, string> = {
     one_time: t('one_time'),
     month: t('month'),
@@ -37,11 +40,17 @@ export function PricingPlans({ products }: { products: Product[] }) {
   // The catalogue carries one description for the product (written on the
   // payment side, in the operator's language). A locale that has reviewed copy
   // for this plan code renders it instead; anything unknown still falls back to
-  // the catalogue text so a new plan is never blank.
-  const descriptionFor = (product: Product) =>
-    /^[A-Za-z0-9_-]+$/.test(product.code) && t.has(`productDescriptions.${product.code}`)
-      ? t(`productDescriptions.${product.code}`)
-      : product.description;
+  // the catalogue text so a new plan is never blank. Reading our own message
+  // object with Object.hasOwn keeps prototype keys (`constructor`, `__proto__`)
+  // from being mistaken for translated copy.
+  const localizedDescriptions = messages.Pricing?.productDescriptions ?? {};
+  const descriptionFor = (product: Product) => {
+    if (Object.hasOwn(localizedDescriptions, product.code)) {
+      const localized = localizedDescriptions[product.code];
+      if (typeof localized === 'string' && localized.trim() !== '') return localized;
+    }
+    return product.description;
+  };
 
   const intervals = useMemo(() => {
     const seen = products.flatMap((product) => product.prices.map((price) => price.interval));
@@ -78,14 +87,15 @@ export function PricingPlans({ products }: { products: Product[] }) {
         {products.map((product) => {
           const price = product.prices.find((item) => item.interval === interval)
             ?? product.prices[0];
+          const description = descriptionFor(product);
           return (
             <article
               key={product.code}
               className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900"
             >
               <h2 className="text-xl font-semibold">{product.name}</h2>
-              {descriptionFor(product) && (
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{descriptionFor(product)}</p>
+              {description && (
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{description}</p>
               )}
               <p className="mt-4 text-lg font-semibold">
                 {amountLabel(price)}

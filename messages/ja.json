@@ -1127,8 +1127,8 @@
   },
   "CheckoutReturn": {
     "successTitle": "ご利用権限が有効になりました",
-    "successBody": "お支払いを確認しました。書庫・章ごとの書き換え・エクスポートがすべて使えるようになりました。さっそく本の整理を始められます。",
-    "unlockedLibrary": "書庫",
+    "successBody": "お支払いを確認しました。ライブラリ・章ごとの書き換え・エクスポートがすべて使えるようになりました。さっそく本の整理を始められます。",
+    "unlockedLibrary": "ライブラリ",
     "unlockedRewrite": "章ごとの書き換え",
     "unlockedExport": "エクスポート",
     "successCta": "本の整理を始める",
