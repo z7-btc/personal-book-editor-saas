@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
@@ -28,15 +28,22 @@ const POLL_TIMEOUT_MILLIS = 60_000;
 
 type Phase = 'idle' | 'polling' | 'success' | 'pending';
 
+// 「有效付费周期」和「白名单豁免」都算已经能用付费功能；只认 active 会让
+// 豁免账号付款回来时白等一分钟再看到「确认中」。
+const hasEntitlement = (allowed: unknown, reason: unknown) =>
+  allowed === true && (reason === 'active' || reason === 'exempt');
+
 export function CheckoutReturnNotice({ initialAccess }: { initialAccess: ToolAccessSnapshot }) {
   const t = useTranslations('CheckoutReturn');
   const searchParams = useSearchParams();
   // 首帧就定下姿态：回跳参数在、服务端已判定付费有效，就直接成功；否则进入轮询。
   const [phase, setPhase] = useState<Phase>(() => {
     if (searchParams.get('checkout') !== 'returned') return 'idle';
-    return initialAccess.allowed && initialAccess.reason === 'active' ? 'success' : 'polling';
+    return hasEntitlement(initialAccess.allowed, initialAccess.reason) ? 'success' : 'polling';
   });
   const [confirming, setConfirming] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const restoreFocusRef = useRef<Element | null>(null);
 
   const clearCheckoutParam = useCallback(() => {
     const url = new URL(window.location.href);
@@ -70,7 +77,7 @@ export function CheckoutReturnNotice({ initialAccess }: { initialAccess: ToolAcc
         const response = await fetch('/api/subscription/access', { cache: 'no-store' });
         if (!response.ok) return false;
         const payload = await response.json().catch(() => null);
-        return payload?.data?.allowed === true && payload?.data?.reason === 'active';
+        return hasEntitlement(payload?.data?.allowed, payload?.data?.reason);
       } catch {
         return false;
       }
@@ -106,13 +113,57 @@ export function CheckoutReturnNotice({ initialAccess }: { initialAccess: ToolAcc
     };
   }, [phase, settle]);
 
+  // 弹窗开着时锁住背景滚动，记住打开前的焦点；关闭或卸载时原样还原。
   useEffect(() => {
     if (phase !== 'success' && phase !== 'pending') return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setPhase('idle');
+    restoreFocusRef.current = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      const previous = restoreFocusRef.current;
+      restoreFocusRef.current = null;
+      if (previous instanceof HTMLElement && previous.isConnected) {
+        previous.focus({ preventScroll: true });
+      }
     };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+  }, [phase]);
+
+  // 焦点圈定在弹窗里：Tab / Shift+Tab 在弹窗内的可聚焦元素间循环，Escape 关闭。
+  useEffect(() => {
+    if (phase !== 'success' && phase !== 'pending') return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setPhase('idle');
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const root = dialogRef.current;
+      if (!root) return;
+      const focusable = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element.getClientRects().length > 0);
+      if (focusable.length === 0) {
+        event.preventDefault();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey) {
+        if (active === first || !root.contains(active)) {
+          event.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !root.contains(active)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [phase]);
 
   if (phase === 'idle') return null;
@@ -133,6 +184,7 @@ export function CheckoutReturnNotice({ initialAccess }: { initialAccess: ToolAcc
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200"
       role="dialog"
       aria-modal="true"
