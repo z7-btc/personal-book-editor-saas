@@ -1121,5 +1121,19 @@
     "footerPricing": "Tarifs",
     "footerPrivacy": "Confidentialité",
     "footerTerms": "Conditions d’utilisation"
+  },
+  "CheckoutReturn": {
+    "successTitle": "Votre accès est actif",
+    "successBody": "Votre paiement est confirmé. La bibliothèque, la réécriture chapitre par chapitre et les exports sont débloqués — vous pouvez commencer votre livre dès maintenant.",
+    "unlockedLibrary": "Bibliothèque",
+    "unlockedRewrite": "Réécriture chapitre par chapitre",
+    "unlockedExport": "Exports",
+    "successCta": "Commencer avec votre livre",
+    "viewBilling": "Voir la facturation",
+    "close": "Fermer",
+    "confirming": "Confirmation de votre paiement…",
+    "pendingTitle": "Paiement reçu",
+    "pendingBody": "Votre accès est encore en cours de confirmation — il s’ouvre généralement en moins d’une minute. Actualisez la page ou consultez l’état sur la page de facturation.",
+    "pendingRefresh": "Actualiser la page"
   }
 }

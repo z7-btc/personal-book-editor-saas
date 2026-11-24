@@ -1121,5 +1121,19 @@
     "footerPricing": "料金",
     "footerPrivacy": "プライバシー",
     "footerTerms": "利用規約"
+  },
+  "CheckoutReturn": {
+    "successTitle": "ご利用権限が有効になりました",
+    "successBody": "お支払いを確認しました。書庫・章ごとの書き換え・エクスポートがすべて使えるようになりました。さっそく本の整理を始められます。",
+    "unlockedLibrary": "書庫",
+    "unlockedRewrite": "章ごとの書き換え",
+    "unlockedExport": "エクスポート",
+    "successCta": "本の整理を始める",
+    "viewBilling": "請求情報を見る",
+    "close": "閉じる",
+    "confirming": "お支払いを確認しています…",
+    "pendingTitle": "お支払いを受け付けました",
+    "pendingBody": "ご利用権限を確認しています。通常は1分以内に有効になります。ページを再読み込みするか、請求ページで最新の状態をご確認ください。",
+    "pendingRefresh": "ページを再読み込み"
   }
 }

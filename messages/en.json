@@ -1121,5 +1121,19 @@
     "footerPricing": "Pricing",
     "footerPrivacy": "Privacy",
     "footerTerms": "Terms"
+  },
+  "CheckoutReturn": {
+    "successTitle": "Your access is active",
+    "successBody": "Your payment is confirmed. The library, chapter rewrites and exports are all unlocked — you can start on your book right away.",
+    "unlockedLibrary": "Library",
+    "unlockedRewrite": "Chapter rewrites",
+    "unlockedExport": "Exports",
+    "successCta": "Start organizing your book",
+    "viewBilling": "View billing",
+    "close": "Close",
+    "confirming": "Confirming your payment…",
+    "pendingTitle": "Payment received",
+    "pendingBody": "We are still confirming your access — it usually opens within a minute. Refresh the page, or check the billing page for the latest status.",
+    "pendingRefresh": "Refresh the page"
   }
 }
