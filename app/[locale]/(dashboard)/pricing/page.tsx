@@ -23,7 +23,14 @@ export const dynamic = 'force-dynamic';
  * then shows one locked price and the payment methods, not a plan browser.
  * This page only checks the binding is configured and that the centre answers.
  */
-export default async function PricingPage() {
+export default async function PricingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ need?: string }>;
+}) {
+  const params = await searchParams;
+  // 被工具页挡回来的访客：先说清楚为什么到了定价页。
+  const needsSubscription = params.need === 'subscription';
   const t = await getTranslations('Pricing');
   const seo = await getTranslations('Seo');
   const locale = await getLocale();
@@ -53,6 +60,14 @@ export default async function PricingPage() {
         }}
       />
       <h1 className="text-4xl font-semibold tracking-tight">{t('title')}</h1>
+      {needsSubscription && (
+        <p
+          role="status"
+          className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+        >
+          {t('subscriptionRequired')}
+        </p>
+      )}
       <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
         {catalog ? t('catalog', { name: catalog.site_name })
           : failed ? t('failed') : t('notConnected')}

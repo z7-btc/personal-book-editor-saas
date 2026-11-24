@@ -127,13 +127,15 @@ export async function createUserFixture(options: {
 export async function createOrganizationFixture(options: {
   userId: string;
   suffix?: string;
+  /** Overrides the slug; pass `personalSlug(userId)` to look like a real personal workspace. */
+  slug?: string;
 }): Promise<{ organizationId: string; memberId: string }> {
   const client = await getClient();
   const suffix = options.suffix ?? uniqueSuffix();
   const organizationId = scopedId('org', suffix);
   const memberId = scopedId('member', suffix);
   await client`INSERT INTO organization (id, name, slug, created_at)
-    VALUES (${organizationId}, ${'Vitest Workspace'}, ${organizationId}, now())`;
+    VALUES (${organizationId}, ${'Vitest Workspace'}, ${options.slug ?? organizationId}, now())`;
   await client`INSERT INTO member (id, organization_id, user_id, role, created_at)
     VALUES (${memberId}, ${organizationId}, ${options.userId}, ${'owner'}, now())`;
   return { organizationId, memberId };
