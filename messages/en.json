@@ -135,7 +135,10 @@
     "autoRenewPlanSwitch": "Switching to this plan turns off your existing Stripe auto-renewal once this payment succeeds.",
     "subscriptionRequired": "The library, chapter rewrites and exports need an active subscription. It is $1 a month, and access opens as soon as the payment is confirmed.",
     "scopeTitle": "What $1 a month includes",
-    "scopeBody": "$1 a month gives you this tool: library, editing plans, chapter rewrites and exports are included. Paying with Stripe renews monthly and you can turn renewal off anytime on the billing page — you keep access until the month you paid for ends. Paying with Binance Pay, OKX or a manual transfer buys one month at a time and does not renew automatically. The model API is yours to configure, and its usage is billed by your provider, not by us."
+    "scopeBody": "$1 a month gives you this tool: library, editing plans, chapter rewrites and exports are included. Paying with Stripe renews monthly and you can turn renewal off anytime on the billing page — you keep access until the month you paid for ends. Paying with Binance Pay, OKX or a manual transfer buys one month at a time and does not renew automatically. The model API is yours to configure, and its usage is billed by your provider, not by us.",
+    "productDescriptions": {
+      "tool": "$1 a month, or $10 a year (saving $2 a year compared with paying monthly): library, editing plans, chapter rewrites and exports. Paying with Stripe renews automatically on the interval you choose and can be turned off anytime on the billing page; paying with Binance Pay, OKX or a manual transfer buys one month or one year at a time and does not renew automatically. The model API used for rewrites is configured by you in settings, and its usage is billed to you directly by your model provider."
+    }
   },
   "Faq": {
     "title": "FAQ",

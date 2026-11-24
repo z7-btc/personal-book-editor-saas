@@ -34,6 +34,14 @@ export function PricingPlans({ products }: { products: Product[] }) {
   };
   const amountLabel = (price: Price) =>
     `${displayAmount(price.amount_decimal)} ${price.currency}`;
+  // The catalogue carries one description for the product (written on the
+  // payment side, in the operator's language). A locale that has reviewed copy
+  // for this plan code renders it instead; anything unknown still falls back to
+  // the catalogue text so a new plan is never blank.
+  const descriptionFor = (product: Product) =>
+    /^[A-Za-z0-9_-]+$/.test(product.code) && t.has(`productDescriptions.${product.code}`)
+      ? t(`productDescriptions.${product.code}`)
+      : product.description;
 
   const intervals = useMemo(() => {
     const seen = products.flatMap((product) => product.prices.map((price) => price.interval));
@@ -76,8 +84,8 @@ export function PricingPlans({ products }: { products: Product[] }) {
               className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900"
             >
               <h2 className="text-xl font-semibold">{product.name}</h2>
-              {product.description && (
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{product.description}</p>
+              {descriptionFor(product) && (
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{descriptionFor(product)}</p>
               )}
               <p className="mt-4 text-lg font-semibold">
                 {amountLabel(price)}
