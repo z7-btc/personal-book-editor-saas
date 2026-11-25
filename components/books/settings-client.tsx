@@ -9,6 +9,19 @@ import {
   type ProviderView,
   type SettingsPayload,
 } from './api';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+/**
+ * Radix Select forbids an empty-string item value, so "no choice" ("—") gets a
+ * sentinel and is mapped back to '' when the form state is written.
+ */
+const EMPTY_OPTION = '__empty__';
 
 type ProviderForm = {
   id?: string;
@@ -227,6 +240,11 @@ export default function SettingsClient() {
   }
 
   const input = 'w-full rounded-md border border-gray-200 bg-transparent px-3 py-2 text-sm outline-none focus:border-gray-400 dark:border-gray-700 dark:focus:border-gray-500';
+  // Matches the gray form controls above; overrides the shadcn defaults
+  // (CSS-variable colors, dark tint, focus ring, 36px height) that would
+  // otherwise stand out next to the plain inputs.
+  const selectTrigger =
+    'border-gray-200 bg-transparent px-3 py-2 text-sm dark:border-gray-700 dark:bg-transparent dark:hover:bg-transparent focus-visible:border-gray-400 dark:focus-visible:border-gray-500 focus-visible:ring-0 data-[size=default]:h-[38px]';
   const label = 'text-xs font-medium text-gray-600 dark:text-gray-400';
   const section = 'rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900';
   const button = 'rounded-md border border-gray-200 px-3 py-1.5 text-xs hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:hover:bg-gray-800';
@@ -365,21 +383,25 @@ export default function SettingsClient() {
               {form.id ? t('settings.providers.editTitle') : t('settings.providers.addTitle')}
             </h3>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <label className="space-y-1">
+              <div className="space-y-1">
                 <span className={label}>{t('settings.providers.preset')}</span>
-                <select
-                  value={form.presetId}
-                  onChange={(event) => applyPreset(event.target.value)}
-                  className={input}
+                <Select
+                  value={form.presetId === '' ? EMPTY_OPTION : form.presetId}
+                  onValueChange={(value) => applyPreset(value === EMPTY_OPTION ? '' : value)}
                 >
-                  <option value="">—</option>
-                  {presets.map((preset) => (
-                    <option key={preset.id} value={preset.id}>
-                      {presetLabel(preset)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  <SelectTrigger aria-label={t('settings.providers.preset')} className={selectTrigger}>
+                    <SelectValue placeholder="—" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={EMPTY_OPTION}>—</SelectItem>
+                    {presets.map((preset) => (
+                      <SelectItem key={preset.id} value={preset.id}>
+                        {presetLabel(preset)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <label className="space-y-1">
                 <span className={label}>{t('settings.providers.name')}</span>
                 <input
@@ -462,20 +484,27 @@ export default function SettingsClient() {
                     className={input}
                   />
                 </label>
-                <label className="space-y-1">
+                <div className="space-y-1">
                   <span className={label}>{t('settings.providers.reasoningEffort')}</span>
-                  <select
-                    value={form.reasoningEffort}
-                    onChange={(event) => setForm({ ...form, reasoningEffort: event.target.value })}
-                    className={input}
+                  <Select
+                    value={form.reasoningEffort === '' ? EMPTY_OPTION : form.reasoningEffort}
+                    onValueChange={(value) => setForm({
+                      ...form,
+                      reasoningEffort: value === EMPTY_OPTION ? '' : value,
+                    })}
                   >
-                    <option value="">—</option>
-                    <option value="none">none</option>
-                    <option value="low">low</option>
-                    <option value="medium">medium</option>
-                    <option value="high">high</option>
-                  </select>
-                </label>
+                    <SelectTrigger aria-label={t('settings.providers.reasoningEffort')} className={selectTrigger}>
+                      <SelectValue placeholder="—" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={EMPTY_OPTION}>—</SelectItem>
+                      <SelectItem value="none">none</SelectItem>
+                      <SelectItem value="low">low</SelectItem>
+                      <SelectItem value="medium">medium</SelectItem>
+                      <SelectItem value="high">high</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <label className="space-y-1">
                   <span className={label}>{t('settings.providers.apiKeyEnv')}</span>
                   <input
