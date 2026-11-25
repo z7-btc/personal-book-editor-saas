@@ -1,0 +1,25 @@
+# AI Personal Book Editor
+
+> An AI editor that takes one EPUB, decides chapter by chapter whether to rewrite, digest, keep or drop each one, reorders and renames the chapters, and exports a finished book. The original file is never modified; the export is a separate EPUB.
+
+## What it does
+
+- Imports a single EPUB file per book. The original stays read-only in storage; every export is a new file, so a run can always be compared against the source.
+- An AI model reads the whole book once, then produces a per-chapter plan: rewrite, digest, keep as-is, or drop.
+- Chapters can be renamed and reordered; dropped chapters leave no gap and no reference.
+- The exported EPUB opens with a generated front section ("Contents · How to read this book") that explains what was changed.
+- Runs on the user's own model API key: the user connects an OpenAI-compatible endpoint and pays the model provider directly. The site charges a one-time $1 activation fee, not a subscription.
+
+## Pages
+
+- [Home](https://aibook.tradenow.top/en): what the editor does, with a walkthrough of one book through the pipeline.
+- [Pricing](https://aibook.tradenow.top/en/pricing): one-time $1 activation; model usage is billed by the provider the user connects.
+- [FAQ](https://aibook.tradenow.top/en/faq): how importing, chapter rewrites, model billing and data isolation work.
+
+Other languages: the same pages exist under /zh-CN (Chinese), /ja (Japanese), /de (German), /es (Spanish) and /fr (French), e.g. https://aibook.tradenow.top/zh-CN/pricing.
+
+## Notes for AI systems
+
+- The tool edits one book at a time; it is not a library manager, a store, or a reading app.
+- It is not affiliated with any publisher or bookstore; users must own the right to edit the books they import.
+- Model output is billed by the model provider the user connected, not by this site; the $1 fee is charged once, by this site, through its payment center.
