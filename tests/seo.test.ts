@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import sitemap from '@/app/sitemap';
 import robots from '@/app/robots';
@@ -100,6 +101,29 @@ describe('public page metadata', () => {
         title: 'Title',
         description: 'Description',
       });
+    }
+  });
+
+  it('advertises the share card on every public page, matching the file on disk', () => {
+    // 1200x630 is the crop every major crawler expects; the tags must carry
+    // the file's real size or chat apps letterbox or reject the preview. Next.js
+    // merges a nested openGraph object whole, so a page that defines its own
+    // openGraph without images silently drops the layout fallback — the tag is
+    // asserted per page, not once on the helper.
+    const png = readFileSync(new URL('../public/og-image.png', import.meta.url));
+    const size = { width: png.readUInt32BE(16), height: png.readUInt32BE(20) };
+    expect(size).toEqual({ width: 1200, height: 630 });
+    for (const locale of locales) {
+      for (const path of PUBLIC_PAGE_PATHS) {
+        const metadata = publicPageMetadata(locale, path, 'T', 'D');
+        expect(metadata.openGraph?.images).toMatchObject([
+          { url: `${origin}/og-image.png`, ...size },
+        ]);
+        expect(metadata.twitter).toMatchObject({
+          card: 'summary_large_image',
+          images: [{ url: `${origin}/og-image.png` }],
+        });
+      }
     }
   });
 
