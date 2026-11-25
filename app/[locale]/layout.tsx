@@ -4,8 +4,10 @@ import { cookies } from 'next/headers';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { GoogleAnalytics } from '@/components/analytics/google-analytics';
 import { routing } from '@/i18n/routing';
-import { siteOrigin } from '@/lib/seo';
+import { resolveGoogleAnalyticsId } from '@/lib/analytics';
+import { defaultShareImage, siteOrigin } from '@/lib/seo';
 import { THEME_COOKIE, readThemeChoice, themeClassFor } from '@/lib/theme';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -19,6 +21,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: t('siteTitle'),
     description: t('siteDescription'),
     metadataBase: new URL(siteOrigin()),
+    // Fallback for any route that does not go through publicPageMetadata;
+    // pages that define their own openGraph must repeat the image because
+    // Next.js merges the nested object as a whole.
+    openGraph: { images: [defaultShareImage()] },
+    twitter: { card: 'summary_large_image', images: [defaultShareImage()] },
   };
 }
 
@@ -65,6 +72,10 @@ async function LocaleDocument({ children, params }: {
   // so a script here could not work. `system` adds no class at all and lets the
   // `prefers-color-scheme` rules in globals.css decide.
   const themeClass = themeClassFor(readThemeChoice((await cookies()).get(THEME_COOKIE)?.value));
+  // Analytics stays fully off when the deployment does not configure it; the
+  // validator also refuses anything that is not a plain G- measurement id, so
+  // this flag cannot be flipped on by a malformed environment value.
+  const gaId = resolveGoogleAnalyticsId(process.env.NEXT_PUBLIC_GA_ID);
   return (
     <html
       lang={locale}
@@ -76,6 +87,7 @@ async function LocaleDocument({ children, params }: {
     >
       <body className="min-h-[100dvh] bg-gray-50 dark:bg-gray-950">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        {gaId ? <GoogleAnalytics measurementId={gaId} /> : null}
       </body>
     </html>
   );
